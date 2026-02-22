@@ -2,8 +2,10 @@ package kr.co.matching.menu.service;
 
 import java.util.List;
 
+
 import org.springframework.stereotype.Service;
 
+import io.swagger.v3.oas.annotations.Operation;
 import kr.co.matching.menu.dto.MenuDto;
 import kr.co.matching.menu.mapper.MenuMapper;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +18,7 @@ public class MenuService {
 
 	private final MenuMapper menuMapper;
 
-	/**
-	 * 메뉴목록 조회
-	 * @return List<MenuDto>
-	 */
+	@Operation(summary = "메뉴 조회", description = "전체 메뉴를 조회합니다")
 	public List<MenuDto> menuList(){
 		return menuMapper.menuList();
 	}

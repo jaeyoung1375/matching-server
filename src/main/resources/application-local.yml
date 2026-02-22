@@ -3,12 +3,20 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:oracle:thin:@yggcv8zldawsd5fk_medium?TNS_ADMIN=D:/wallet
+    url: jdbc:p6spy:oracle:thin:@yggcv8zldawsd5fk_medium?TNS_ADMIN=C:/wallet
     username: dev
     password: Jaeyeong1234
-    driver-class-name: oracle.jdbc.OracleDriver	  
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
 
 server:
   port: 9090
-  
 
+decorator:
+  datasource:
+    p6spy:
+      enable: false
+
+logging:
+  level:
+    p6spy: INFO
+   

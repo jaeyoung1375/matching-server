@@ -1,10 +1,13 @@
 package kr.co.matching.common;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
+@Schema(description = "API 응답코드 DTO")
 public class ApiResponse<T> {
 
+	@Schema(description = "응답코드", example = "0000")
     private final String code;
     private final T data;
 
