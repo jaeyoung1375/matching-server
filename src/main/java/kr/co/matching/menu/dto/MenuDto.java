@@ -1,5 +1,6 @@
 package kr.co.matching.menu.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,26 +10,37 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "메뉴 DTO")
 public class MenuDto {
 
-	private String menuId; // 메뉴아이디
+	@Schema(description = "메뉴아이디")
+	private String menuId;
 
-	private String menuNm; // 메뉴명
+	@Schema(description = "메뉴명")
+	private String menuNm;
 
-	private String menuUrl; // 메뉴URL
+	@Schema(description = "메뉴URL")
+	private String menuUrl;
 
-	private String menuLevel; // 메뉴레벨
+	@Schema(description = "메뉴레벨")
+	private String menuLevel;
 
-	private String menuOrd; // 메뉴정렬순서
+	@Schema(description = "메뉴정렬순서")
+	private String menuOrd;
 
-	private String upMenuId; // 상위메뉴아이디
+	@Schema(description = "상위메뉴아이디")
+	private String upMenuId;
 
-	private String topYn; // 상위여부
+	@Schema(description = "상위여부")
+	private String topYn;
 
-	private String useYn; // 사용여부
+	@Schema(description = "사용여부")
+	private String useYn;
 
-	private String regId; // 동록자
+	@Schema(description = "동록자")
+	private String regId;
 
-	private String regDt; // 등록일
+	@Schema(description = "동록자")
+	private String regDt;
 
 }
