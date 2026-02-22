@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:oracle:thin:@yggcv8zldawsd5fk_medium?TNS_ADMIN=D:/wallet
+    username: dev
+    password: Jaeyeong1234
+    driver-class-name: oracle.jdbc.OracleDriver	  
+
+server:
+  port: 9090
+  
+

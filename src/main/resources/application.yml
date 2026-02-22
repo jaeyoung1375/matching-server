@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: matching-server
+  profiles:
+    default: local
+
+mybatis:
+  mapper-locations: classpath:/mapper/**/*-mapper.xml
+  type-aliases-package: kr.co.matching
+  configuration:
+    map-underscore-to-camel-case: true
