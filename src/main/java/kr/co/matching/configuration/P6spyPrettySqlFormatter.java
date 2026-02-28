@@ -4,9 +4,12 @@ import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
 
 import java.util.Locale;
 
+import org.slf4j.MDC;
+
 public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
 
     private static final String NEW_LINE = System.lineSeparator();
+    private static final String indent = "        ";
 
     @Override
     public String formatMessage(int connectionId, String now, long elapsed, String category,
@@ -17,11 +20,14 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
 		}
 
 		 // 키워드 기준 줄바꿈 + 대문자
-	    String formattedSql = sql.trim()
-	                             .replaceAll("(?i)\\b(FROM|WHERE|GROUP BY|ORDER BY|JOIN|ON|AND|OR)\\b", "\n$1")
-	                             .toUpperCase(Locale.ROOT);
+	    String formattedSql = alignColumns(sql.trim());
+	    String mapperId = MDC.get("P6SPY_CATEGORY");
+	    if (mapperId == null) {
+	        mapperId = category; // 기본 fallback
+	    }
 
-	    return formattedSql;
+
+	    return NEW_LINE + NEW_LINE +"/* [" + mapperId + "] */\n" + formattedSql;
 		}
 
     private String formatSql(String sql) {
@@ -44,5 +50,31 @@ public class P6spyPrettySqlFormatter implements MessageFormattingStrategy {
 
     private boolean isStatement(String category) {
         return category != null && category.equalsIgnoreCase("statement");
+    }
+
+    private String alignColumns(String sql) {
+        sql = sql.replace("\t", "    "); // 탭 → 공백
+        String[] lines = sql.split("\n");
+        int maxIdx = 0;
+
+        for (String line : lines) {
+            int idx = line.indexOf("/*");
+            if (idx > maxIdx) maxIdx = idx;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            int idx = line.indexOf("/*");
+            if (idx >= 0) {
+                int pad = maxIdx - idx;
+                sb.append(line, 0, idx)
+                  .append(" ".repeat(pad))
+                  .append(line.substring(idx))
+                  .append("\n");
+            } else {
+                sb.append(line).append("\n");
+            }
+        }
+        return sb.toString();
     }
 }
