@@ -9,3 +9,8 @@ mybatis:
   type-aliases-package: kr.co.matching
   configuration:
     map-underscore-to-camel-case: true
+
+jwt:
+  secret: "your-very-very-long-and-random-secret-key-at-least-32-bytes"
+  access-exp-ms: 1800000    # 30분
+  refresh-exp-ms: 1209600000 # 14일
