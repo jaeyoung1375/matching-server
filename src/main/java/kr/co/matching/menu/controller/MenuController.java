@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.co.matching.common.ApiResponse;
+import kr.co.matching.common.response.ApiResponse;
 import kr.co.matching.menu.dto.MenuDto;
 import kr.co.matching.menu.service.MenuService;
 import lombok.RequiredArgsConstructor;

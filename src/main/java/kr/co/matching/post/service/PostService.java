@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import kr.co.matching.common.code.UserErrorCode;
+import kr.co.matching.common.exception.CustomException;
 import kr.co.matching.post.dto.PostRequestDto;
 import kr.co.matching.post.dto.PostResponseDto;
 import kr.co.matching.post.mapper.PostMapper;
@@ -21,6 +23,11 @@ public class PostService {
 	 * @return List<PostResponseDto>
 	 */
 	public List<PostResponseDto> selectAllPosts(PostRequestDto req){
+
+		if(req != null) {
+			throw new CustomException(UserErrorCode.INVALID_PASSWORD);
+		}
+
 		return postMapper.selectAllPosts(req);
 	}
 

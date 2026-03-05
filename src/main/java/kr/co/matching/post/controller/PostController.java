@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
-import kr.co.matching.common.ApiResponse;
+import kr.co.matching.common.response.ApiResponse;
 import kr.co.matching.post.dto.PostRequestDto;
 import kr.co.matching.post.dto.PostResponseDto;
 import kr.co.matching.post.service.PostService;
