@@ -3,10 +3,9 @@ package kr.co.matching.post.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import kr.co.matching.common.response.ApiResponse;
 import kr.co.matching.post.dto.PostRequestDto;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/v1")
 public class PostController {
 
 	private final PostService postService;
