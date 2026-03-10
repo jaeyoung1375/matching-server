@@ -51,36 +51,11 @@
         WHERE email = #{email}
     </select>
 
-    <insert id="upsertRefreshToken">
-        MERGE INTO USER_REFRESH_TOKENS t
-            USING DUAL
-            ON (t.USER_ID = #{userId})
-            WHEN MATCHED THEN
-                UPDATE SET
-                    t.TOKEN_HASH = #{refreshToken},
-                    t.MOD_DT = SYSDATE,
-                    t.EXPIRES_AT = SYSDATE + 14
-            WHEN NOT MATCHED THEN
-                INSERT (USER_ID, TOKEN_HASH, EXPIRES_AT, REG_DT, MOD_DT)
-                    VALUES (#{userId}, #{refreshToken}, SYSDATE + 14, SYSDATE, SYSDATE)
-    </insert>
-
-    <select id="findRefreshToken" resultType="string">
-        SELECT TOKEN_HASH
-        FROM USER_REFRESH_TOKENS
-        WHERE user_id = #{userId}
-    </select>
-
     <update id="withdrawUser" parameterType="long">
         UPDATE USERS
         SET STATUS = 'DEACTIVATE',
             MOD_DT = SYSDATE
         WHERE USER_ID = #{userId}
     </update>
-
-    <delete id="deleteRefreshToken">
-        DELETE FROM USER_REFRESH_TOKENS
-        WHERE USER_ID = #{userId}
-    </delete>
 
 </mapper>

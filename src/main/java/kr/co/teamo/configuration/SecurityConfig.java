@@ -1,4 +1,4 @@
-package kr.co.matching.configuration;
+package kr.co.teamo.configuration;
 
 import kr.co.teamo.auth.filter.JwtAuthenticationFilter;
 import kr.co.teamo.auth.security.RestAuthenticationEntryPoint;

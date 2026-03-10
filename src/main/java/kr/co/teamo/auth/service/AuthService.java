@@ -1,11 +1,10 @@
 package kr.co.teamo.auth.service;
 
-import kr.co.matching.auth.dto.*;
 import kr.co.teamo.auth.dto.*;
 import kr.co.teamo.auth.mapper.AuthMapper;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +19,7 @@ public class AuthService {
     private final AuthMapper authMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
+    private final RefreshTokenRedisService refreshTokenRedisService;
 
     @Transactional
     public SignupResponse signup(SignupRequest req) {
@@ -72,38 +72,43 @@ public class AuthService {
         String accessToken = jwtTokenUtil.createAccessToken(userId);
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
-        authMapper.upsertRefreshToken(userId, refreshToken);
+        refreshTokenRedisService.save(userId, refreshToken);
 
         return new LoginResponse(userId, accessToken, refreshToken);
     }
 
-    public RefreshResponse refreshToken(RefreshRequest req){
+    public RefreshResponse refreshToken(RefreshRequest req) {
 
         String refreshToken = req.getRefreshToken();
 
-        if(!jwtTokenUtil.validateToken(refreshToken)){
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            throw new RuntimeException("refresh token이 없습니다.");
+        }
+
+        if (!jwtTokenUtil.validateToken(refreshToken)) {
             throw new RuntimeException("유효하지 않은 refresh token 입니다.");
         }
 
         Long userId = jwtTokenUtil.getUserId(refreshToken);
 
-        String savedToken = authMapper.findRefreshToken(userId);
+        String savedToken = refreshTokenRedisService.findByUserId(userId);
 
-        if(savedToken == null || !savedToken.equals(refreshToken)){
+        if (savedToken == null || !savedToken.equals(refreshToken)) {
             throw new RuntimeException("로그아웃된 토큰입니다.");
         }
 
         String newAccessToken = jwtTokenUtil.createAccessToken(userId);
         String newRefreshToken = jwtTokenUtil.createRefreshToken(userId);
 
-        authMapper.upsertRefreshToken(userId,newRefreshToken);
+        refreshTokenRedisService.save(userId, newRefreshToken);
 
-        return new RefreshResponse(newAccessToken,newRefreshToken);
+        return new RefreshResponse(newAccessToken, newRefreshToken);
     }
+
 
     @Transactional
     public void withdrawUser(Long userId){
         authMapper.withdrawUser(userId);
-        authMapper.deleteRefreshToken(userId);
+        refreshTokenRedisService.delete(userId);
     }
 }
