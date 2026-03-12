@@ -7,10 +7,7 @@ import kr.co.teamo.auth.service.AuthService;
 import kr.co.teamo.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "AuthPublic", description = "회원 관련(PUBLIC) API")
 @RestController
@@ -26,6 +23,12 @@ public class AuthPublicController {
     public ApiResponse<SignupResponse> signup(@RequestBody SignupRequest req) {
         SignupResponse res = authService.signup(req);
         return ApiResponse.ok(res);
+    }
+
+    @Operation(summary = "회원가입 이메일 중복검사", description = "회원가입 이메일 중복검사 API")
+    @GetMapping("/exists-email")
+    public boolean existsByEmail(@RequestParam String email) {
+        return authService.existsByEmail(email);
     }
 
     @Operation(summary = "로그인", description = "로그인 API")

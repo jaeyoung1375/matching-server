@@ -58,4 +58,22 @@
         WHERE USER_ID = #{userId}
     </update>
 
+    <select id="existsEmail" resultType="int">
+        SELECT count(*)
+        FROM USERS
+        WHERE EMAIL = #{email}
+    </select>
+
+    <select id="findById" resultType="User">
+        SELECT
+            USER_ID,
+            EMAIL,
+            NAME,
+            PHONE,
+            ROLE,
+            PROFILE_FILE_ID
+        FROM USERS
+        WHERE USER_ID = #{userId}
+    </select>
+
 </mapper>

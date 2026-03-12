@@ -5,6 +5,7 @@ import kr.co.teamo.auth.mapper.AuthMapper;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final RefreshTokenRedisService refreshTokenRedisService;
+    private final RedisTemplate<Object, Object> redisTemplate;
 
     @Transactional
     public SignupResponse signup(SignupRequest req) {
@@ -74,7 +76,7 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, refreshToken);
 
-        return new LoginResponse(userId, accessToken, refreshToken);
+        return new LoginResponse(accessToken, refreshToken);
     }
 
     public RefreshResponse refreshToken(RefreshRequest req) {
@@ -110,5 +112,32 @@ public class AuthService {
     public void withdrawUser(Long userId){
         authMapper.withdrawUser(userId);
         refreshTokenRedisService.delete(userId);
+    }
+
+    public boolean existsByEmail(String email) {
+        return authMapper.existsEmail(email) > 0;
+    }
+
+    public User getMe(){
+        Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
+
+        User user = authMapper.findById(userId);
+
+        if (user == null) {
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+
+        return new User(
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getPhone(),
+                user.getRole(),
+                user.getProfileImageUrl()
+        );
+    }
+
+    public void logout(Long userId){
+        redisTemplate.delete("refresh:" + userId);
     }
 }
