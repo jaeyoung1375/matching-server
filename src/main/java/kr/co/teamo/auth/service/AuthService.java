@@ -31,11 +31,6 @@ public class AuthService {
         String name = req.getName();
         String phone = req.getPhone();
 
-        if (email == null || email.trim().isEmpty()) throw new IllegalArgumentException("email은 필수입니다.");
-        if (password == null || password.trim().isEmpty()) throw new IllegalArgumentException("password는 필수입니다.");
-        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException("name은 필수입니다.");
-        if (phone == null || phone.trim().isEmpty()) throw new IllegalArgumentException("phone은 필수입니다.");
-
         email = email.trim().toLowerCase();
 
         if (authMapper.countByEmail(email) > 0) {
@@ -60,9 +55,6 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest req) {
         Map<String,Object> user = authMapper.findByEmail(req.getEmail());
-        if(user == null){
-            throw new RuntimeException("이메일 또는 비밀번호가 올바르지 않습니다.");
-        }
 
         String passwordHash = (String) user.get("PASSWORD_HASH");
         if (!passwordEncoder.matches(req.getPassword(), passwordHash)) {
