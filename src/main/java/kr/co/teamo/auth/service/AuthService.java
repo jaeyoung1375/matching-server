@@ -50,9 +50,9 @@ public class AuthService {
 
         Long userId = dto.getUserId();
 
-        if (req.getLanguageIds() != null) {
-            for (Long languageId : req.getLanguageIds()) {
-                authMapper.insertUserLanguage(userId, languageId);
+        if (req.getDtlCdIds() != null) {
+            for (String dtlCdId : req.getDtlCdIds()) {
+                authMapper.insertUserLanguage(userId, dtlCdId);
             }
         }
 

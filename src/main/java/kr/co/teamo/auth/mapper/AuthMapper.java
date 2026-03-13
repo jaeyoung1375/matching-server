@@ -15,7 +15,7 @@ public interface AuthMapper {
     int countByEmail(@Param("email") String email);
     void insertUser(UserInsertDto dto);
     void insertUserLanguage(@Param("userId") Long userId,
-                            @Param("languageId") Long languageId);
+                            @Param("dtlCdId") String dtlCdId);
     LoginDto findByEmail(@Param("email") String email);
     void withdrawUser(@Param("userId") Long userId);
     int existsEmail(@Param("email") String Email);

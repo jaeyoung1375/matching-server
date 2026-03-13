@@ -42,16 +42,16 @@
     </insert>
 
     <insert id="insertUserLanguage">
-        INSERT INTO USER_LANGUAGES
+        INSERT INTO USER_TECH_STACK
         (
             USER_ID,
-            LANGUAGE_ID,
+            DTL_CD_ID,
             REG_DT
         )
         VALUES
             (
                 #{userId},
-                #{languageId},
+                #{dtlCdId},
                 SYSDATE
             )
     </insert>
@@ -92,10 +92,11 @@
 
     <select id="findAll" resultType="TechStackResponse">
         SELECT
-            LANGUAGE_ID,
-            NAME
-        FROM LANGUAGES
-        ORDER BY LANGUAGE_ID
+            ccd.COM_CD_ID,
+            ccd.DTL_CD_ID,
+            ccd.DTL_CD_NM
+        FROM CMM_CODE_DTL ccd
+        WHERE ccd.COM_CD_ID IN ('TECH_STACK', 'AI_FIELD', 'DESIGN_FIELD', 'MARKETING_FIELD', 'BUSINESS_FIELD')
     </select>
 
 </mapper>

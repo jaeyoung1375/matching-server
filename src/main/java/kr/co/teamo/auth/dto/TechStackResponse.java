@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TechStackResponse {
-    private Long languageId;
-    private String name;
+    private String dtlCdId;
+    private String dtlCdNm;
 }
