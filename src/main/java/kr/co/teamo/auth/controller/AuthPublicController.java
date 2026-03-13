@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "AuthPublic", description = "회원 관련(PUBLIC) API")
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +32,14 @@ public class AuthPublicController {
     @GetMapping("/exists-email")
     public boolean existsByEmail(@RequestParam String email) {
         return authService.existsByEmail(email);
+    }
+
+    @Operation(summary = "언어 종류 조회", description = "언어 종류 조회 API")
+    @GetMapping("/tech-stacks")
+    public ApiResponse<List<TechStackResponse>> getTechStack() {
+        return ApiResponse.ok(
+                authService.getTechStacks()
+        );
     }
 
     @Operation(summary = "로그인", description = "로그인 API")

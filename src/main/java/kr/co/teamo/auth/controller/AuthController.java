@@ -22,8 +22,8 @@ public class AuthController {
 
     @Operation(summary = "로그인한 사용자 정보 조회", description = "로그인한 사용자 정보 조회 API")
     @GetMapping("/me")
-    public User getMe(){
-        return authService.getMe();
+    public ApiResponse<User> getMe(){
+        return ApiResponse.ok(authService.getMe());
     }
 
     @Operation(summary = "회원탈퇴", description = "회원탈퇴 API")

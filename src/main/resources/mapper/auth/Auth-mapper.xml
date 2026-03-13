@@ -41,12 +41,26 @@
         )
     </insert>
 
-    <select id="findByEmail" resultType="map">
+    <insert id="insertUserLanguage">
+        INSERT INTO USER_LANGUAGES
+        (
+            USER_ID,
+            LANGUAGE_ID,
+            REG_DT
+        )
+        VALUES
+            (
+                #{userId},
+                #{languageId},
+                SYSDATE
+            )
+    </insert>
+
+    <select id="findByEmail" resultType="LoginDto">
         SELECT
             USER_ID,
             EMAIL,
-            PASSWORD_HASH,
-            STATUS
+            PASSWORD_HASH
         FROM USERS
         WHERE email = #{email}
     </select>
@@ -74,6 +88,14 @@
             PROFILE_FILE_ID
         FROM USERS
         WHERE USER_ID = #{userId}
+    </select>
+
+    <select id="findAll" resultType="TechStackResponse">
+        SELECT
+            LANGUAGE_ID,
+            NAME
+        FROM LANGUAGES
+        ORDER BY LANGUAGE_ID
     </select>
 
 </mapper>

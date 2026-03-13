@@ -3,6 +3,8 @@ package kr.co.teamo.auth.service;
 import kr.co.teamo.auth.dto.*;
 import kr.co.teamo.auth.mapper.AuthMapper;
 import kr.co.teamo.auth.util.JwtTokenUtil;
+import kr.co.teamo.common.code.UserErrorCode;
+import kr.co.teamo.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -23,45 +26,62 @@ public class AuthService {
     private final RefreshTokenRedisService refreshTokenRedisService;
     private final RedisTemplate<Object, Object> redisTemplate;
 
+    /* =========================
+        회원가입
+     ========================= */
+
     @Transactional
     public SignupResponse signup(SignupRequest req) {
 
-        String email = req.getEmail();
-        String password = req.getPassword();
-        String name = req.getName();
-        String phone = req.getPhone();
-
-        email = email.trim().toLowerCase();
+        String email = req.getEmail().trim().toLowerCase();
 
         if (authMapper.countByEmail(email) > 0) {
-            throw new IllegalStateException("이미 가입된 이메일입니다.");
+            throw new CustomException(UserErrorCode.EMAIL_DUPLICATED);
         }
 
         UserInsertDto dto = new UserInsertDto();
         dto.setEmail(email);
-        dto.setPasswordHash(passwordEncoder.encode(password));
+        dto.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         dto.setStatus("ACTIVE");
-        dto.setName(name.trim());
-        dto.setPhone(phone.trim());
+        dto.setName(req.getName().trim());
+        dto.setPhone(req.getPhone().trim());
 
         authMapper.insertUser(dto);
 
+        Long userId = dto.getUserId();
+
+        if (req.getLanguageIds() != null) {
+            for (Long languageId : req.getLanguageIds()) {
+                authMapper.insertUserLanguage(userId, languageId);
+            }
+        }
+
         return SignupResponse.builder()
-                .userId(dto.getUserId())
-                .email(dto.getEmail())
+                .userId(userId)
+                .email(email)
                 .message("회원가입 완료")
                 .build();
     }
 
-    public LoginResponse login(LoginRequest req) {
-        Map<String,Object> user = authMapper.findByEmail(req.getEmail());
+    /* =========================
+        로그인
+     ========================= */
 
-        String passwordHash = (String) user.get("PASSWORD_HASH");
-        if (!passwordEncoder.matches(req.getPassword(), passwordHash)) {
-            throw new RuntimeException("비밀번호가 올바르지 않습니다.");
+    public LoginResponse login(LoginRequest req) {
+
+        LoginDto user = authMapper.findByEmail(req.getEmail());
+
+        if (user == null) {
+            throw new CustomException(UserErrorCode.INVALID_INFO);
         }
 
-        Long userId =  ((Number) user.get("USER_ID")).longValue();
+        String passwordHash = user.getPasswordHash();
+
+        if (!passwordEncoder.matches(req.getPassword(), passwordHash)) {
+            throw new CustomException(UserErrorCode.INVALID_PASSWORD);
+        }
+
+        Long userId = user.getId();
 
         String accessToken = jwtTokenUtil.createAccessToken(userId);
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
@@ -71,16 +91,20 @@ public class AuthService {
         return new LoginResponse(accessToken, refreshToken);
     }
 
+    /* =========================
+        토큰 재발급
+     ========================= */
+
     public RefreshResponse refreshToken(RefreshRequest req) {
 
         String refreshToken = req.getRefreshToken();
 
-        if (refreshToken == null || refreshToken.trim().isEmpty()) {
-            throw new RuntimeException("refresh token이 없습니다.");
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new CustomException(UserErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         if (!jwtTokenUtil.validateToken(refreshToken)) {
-            throw new RuntimeException("유효하지 않은 refresh token 입니다.");
+            throw new CustomException(UserErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Long userId = jwtTokenUtil.getUserId(refreshToken);
@@ -88,7 +112,7 @@ public class AuthService {
         String savedToken = refreshTokenRedisService.findByUserId(userId);
 
         if (savedToken == null || !savedToken.equals(refreshToken)) {
-            throw new RuntimeException("로그아웃된 토큰입니다.");
+            throw new CustomException(UserErrorCode.INVALID_LOGOUT_TOKEN);
         }
 
         String newAccessToken = jwtTokenUtil.createAccessToken(userId);
@@ -99,37 +123,57 @@ public class AuthService {
         return new RefreshResponse(newAccessToken, newRefreshToken);
     }
 
+    /* =========================
+        회원 탈퇴
+     ========================= */
 
     @Transactional
-    public void withdrawUser(Long userId){
+    public void withdrawUser(Long userId) {
+
         authMapper.withdrawUser(userId);
+
         refreshTokenRedisService.delete(userId);
     }
 
-    public boolean existsByEmail(String email) {
-        return authMapper.existsEmail(email) > 0;
-    }
+    /* =========================
+        로그인 사용자 조회
+     ========================= */
 
-    public User getMe(){
+    public User getMe() {
+
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
 
         User user = authMapper.findById(userId);
 
         if (user == null) {
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
 
-        return new User(
-                user.getId(),
-                user.getEmail(),
-                user.getName(),
-                user.getPhone(),
-                user.getRole(),
-                user.getProfileImageUrl()
-        );
+        return user;
     }
 
-    public void logout(Long userId){
+    /* =========================
+        로그아웃
+     ========================= */
+
+    public void logout(Long userId) {
+
         redisTemplate.delete("refresh:" + userId);
+    }
+
+    /* =========================
+        이메일 중복 체크
+     ========================= */
+
+    public boolean existsByEmail(String email) {
+        return authMapper.existsEmail(email) > 0;
+    }
+
+    /* =========================
+        기술 스택 조회
+     ========================= */
+
+    public List<TechStackResponse> getTechStacks(){
+        return authMapper.findAll();
     }
 }

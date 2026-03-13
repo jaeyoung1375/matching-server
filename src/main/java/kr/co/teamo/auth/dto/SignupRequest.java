@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.List;
+
 @Getter @Setter
 @Schema(description = "이메일 회원가입 DTO")
 public class SignupRequest {
@@ -24,4 +26,6 @@ public class SignupRequest {
     @NotBlank(message = "전화번호는 필수입니다.")
     @Pattern(regexp = "^[0-9]{10,11}$", message = "전화번호 형식이 올바르지 않습니다.")
     private String phone;
+
+    private List<Long> languageIds;
 }
