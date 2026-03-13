@@ -81,7 +81,7 @@ public class AuthService {
             throw new CustomException(UserErrorCode.INVALID_PASSWORD);
         }
 
-        Long userId = user.getId();
+        Long userId = user.getUserId();
 
         String accessToken = jwtTokenUtil.createAccessToken(userId);
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
