@@ -21,10 +21,10 @@
 	  FROM CMM_CODE A
 	  INNER JOIN CMM_CODE_DTL B
 	  ON A.COM_CD_ID  = B.COM_CD_ID
-	  WHERE A.COM_CD_ID = #{comCdId}
-	  <if test="dtlCdId != null and dtlCdId != ''">
-  	  AND B.DTL_CD_ID = #{dtlCdId}
-	  </if>
+	  WHERE A.COM_CD_ID IN
+	  <foreach item="id" collection="comCdIds" open="(" separator="," close=")">
+	  	#{id}
+	  </foreach>
 	  AND A.USE_YN = 'Y'
 	  ORDER BY SORT_SEQ
 

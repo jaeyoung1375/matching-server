@@ -1,10 +1,11 @@
 package kr.co.teamo.code.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,9 +27,13 @@ public class CodeController {
 
 	@Operation(summary = "공통코드조회", description = "공통코드를 조회한다")
 	@GetMapping("/codes")
-	public ApiResponse<List<CodeResponseDto>> getCodeList(@ModelAttribute CodeRequestDto requestDto) {
+	public ApiResponse<Map<String, List<CodeResponseDto>>> getCodeList(@RequestParam(name = "comCdIds")  List<String> comCdIds) {
 
-		return ApiResponse.ok(codeService.getCodeList(requestDto));
+		return ApiResponse.ok(codeService.getCodeList(comCdIds));
 	}
+
+
+
+
 
 }

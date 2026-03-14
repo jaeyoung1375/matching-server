@@ -1,5 +1,7 @@
 package kr.co.teamo.code.dto;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +21,9 @@ public class CodeRequestDto {
 
 	@Schema(description = "상세코드아이디")
 	private String dtlCdId;
+
+	@Schema(description = "공통코드아이디 리스트")
+	private List<CodeRequestDto> comCdIds;
 
 
 
