@@ -78,16 +78,38 @@
         WHERE EMAIL = #{email}
     </select>
 
-    <select id="findById" resultType="User">
+    <resultMap id="userResultMap" type="User">
+
+        <id property="id" column="USER_ID"/>
+        <result property="email" column="EMAIL"/>
+        <result property="name" column="NAME"/>
+        <result property="phone" column="PHONE"/>
+        <result property="role" column="ROLE"/>
+        <result property="profileFileId" column="PROFILE_FILE_ID"/>
+
+        <collection property="languages" ofType="TechStackResponse">
+            <result property="dtlCdId" column="DTL_CD_ID"/>
+            <result property="dtlCdNm" column="DTL_CD_NM"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="findById" resultMap="userResultMap">
         SELECT
-            USER_ID,
-            EMAIL,
-            NAME,
-            PHONE,
-            ROLE,
-            PROFILE_FILE_ID
-        FROM USERS
-        WHERE USER_ID = #{userId}
+            u.USER_ID,
+            u.EMAIL,
+            u.NAME,
+            u.PHONE,
+            u.ROLE,
+            u.PROFILE_FILE_ID,
+            ccd.DTL_CD_ID,
+            ccd.DTL_CD_NM
+        FROM USERS u
+                 LEFT JOIN USER_TECH_STACK uts
+                           ON uts.USER_ID = u.USER_ID
+                 LEFT JOIN CMM_CODE_DTL ccd
+                           ON ccd.DTL_CD_ID = uts.DTL_CD_ID
+        WHERE u.USER_ID = #{userId}
     </select>
 
     <select id="findAll" resultType="TechStackResponse">
@@ -98,5 +120,22 @@
         FROM CMM_CODE_DTL ccd
         WHERE ccd.COM_CD_ID IN ('TECH_STACK', 'AI_FIELD', 'DESIGN_FIELD', 'MARKETING_FIELD', 'BUSINESS_FIELD')
     </select>
+
+    <update id="updateUser">
+        UPDATE USERS
+        <set>
+            NAME = #{name},
+            <if test="passwordHash !=null">
+                PASSWORD_HASH = #{passwordHash},
+            </if>
+            MOD_DT = SYSDATE
+        </set>
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <delete id="deleteUserLanguage">
+        DELETE FROM USER_TECH_STACK
+        WHERE USER_ID = #{userId}
+    </delete>
 
 </mapper>

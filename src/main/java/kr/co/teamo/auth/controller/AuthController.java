@@ -2,6 +2,7 @@ package kr.co.teamo.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.co.teamo.auth.dto.UpdateUserRequest;
 import kr.co.teamo.auth.dto.User;
 import kr.co.teamo.auth.service.AuthService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
@@ -39,6 +40,14 @@ public class AuthController {
     public ApiResponse<Void> logout(){
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
         authService.logout(userId);
+        return ApiResponse.ok();
+    }
+
+    @Operation(summary = "회원수정", description = "회원수정 API")
+    @PutMapping("/me")
+    public ApiResponse<Void> updateMe(@RequestBody UpdateUserRequest updateUserRequest){
+        Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
+        authService.updateMe(userId,updateUserRequest);
         return ApiResponse.ok();
     }
 

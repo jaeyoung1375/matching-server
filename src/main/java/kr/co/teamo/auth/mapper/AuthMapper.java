@@ -12,13 +12,15 @@ import java.util.Map;
 
 @Mapper
 public interface AuthMapper {
-    int countByEmail(@Param("email") String email);
+    int countByEmail(String email);
     void insertUser(UserInsertDto dto);
     void insertUserLanguage(@Param("userId") Long userId,
                             @Param("dtlCdId") String dtlCdId);
-    LoginDto findByEmail(@Param("email") String email);
-    void withdrawUser(@Param("userId") Long userId);
-    int existsEmail(@Param("email") String Email);
+    LoginDto findByEmail(String email);
+    void withdrawUser(Long userId);
+    int existsEmail(String Email);
     User findById(Long userId);
     List<TechStackResponse> findAll();
+    void updateUser(@Param("userId") Long userId, @Param("name") String name, @Param("passwordHash") String passwordHash);
+    void deleteUserLanguage(Long userId);
 }

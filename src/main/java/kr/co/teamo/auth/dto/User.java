@@ -1,11 +1,14 @@
 package kr.co.teamo.auth.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 @Setter
 public class User {
     private Long id;
@@ -14,4 +17,5 @@ public class User {
     private String phone;
     private String role;
     private String profileImageUrl;
+    private List<TechStackResponse> languages = new ArrayList<>();
 }

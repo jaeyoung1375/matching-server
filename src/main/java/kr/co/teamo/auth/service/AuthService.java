@@ -26,10 +26,7 @@ public class AuthService {
     private final RefreshTokenRedisService refreshTokenRedisService;
     private final RedisTemplate<Object, Object> redisTemplate;
 
-    /* =========================
-        회원가입
-     ========================= */
-
+    // 회원가입
     @Transactional
     public SignupResponse signup(SignupRequest req) {
 
@@ -63,10 +60,7 @@ public class AuthService {
                 .build();
     }
 
-    /* =========================
-        로그인
-     ========================= */
-
+    // 로그인
     public LoginResponse login(LoginRequest req) {
 
         LoginDto user = authMapper.findByEmail(req.getEmail());
@@ -91,10 +85,7 @@ public class AuthService {
         return new LoginResponse(accessToken, refreshToken);
     }
 
-    /* =========================
-        토큰 재발급
-     ========================= */
-
+    // 토큰 재발급
     public RefreshResponse refreshToken(RefreshRequest req) {
 
         String refreshToken = req.getRefreshToken();
@@ -123,10 +114,7 @@ public class AuthService {
         return new RefreshResponse(newAccessToken, newRefreshToken);
     }
 
-    /* =========================
-        회원 탈퇴
-     ========================= */
-
+    // 회원 탈퇴
     @Transactional
     public void withdrawUser(Long userId) {
 
@@ -135,10 +123,7 @@ public class AuthService {
         refreshTokenRedisService.delete(userId);
     }
 
-    /* =========================
-        로그인 사용자 조회
-     ========================= */
-
+    // 로그인 사용자 조회
     public User getMe() {
 
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
@@ -152,28 +137,36 @@ public class AuthService {
         return user;
     }
 
-    /* =========================
-        로그아웃
-     ========================= */
-
+    // 로그아웃
     public void logout(Long userId) {
 
         redisTemplate.delete("refresh:" + userId);
     }
 
-    /* =========================
-        이메일 중복 체크
-     ========================= */
-
+    // 이메일 중복 체크
     public boolean existsByEmail(String email) {
         return authMapper.existsEmail(email) > 0;
     }
 
-    /* =========================
-        기술 스택 조회
-     ========================= */
-
+    // 기술 스택 조회
     public List<TechStackResponse> getTechStacks(){
         return authMapper.findAll();
+    }
+    
+    // 마이페이지 수정
+    @Transactional
+    public void updateMe(Long userId, UpdateUserRequest request){
+        String encodedPassword = null;
+        if(request.getPasswordHash() != null && !request.getPasswordHash().isBlank()){
+            encodedPassword = passwordEncoder.encode(request.getPasswordHash());
+        }
+
+        authMapper.updateUser(userId, request.getName(),encodedPassword);
+        authMapper.deleteUserLanguage(userId);
+        if(request.getDtlCdIds() != null){
+            for(String dtlCdId : request.getDtlCdIds()){
+                authMapper.insertUserLanguage(userId,dtlCdId);
+            }
+        }
     }
 }
