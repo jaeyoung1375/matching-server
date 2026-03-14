@@ -24,11 +24,16 @@ public class PostService {
 	 */
 	public List<PostResponseDto> selectAllPosts(PostRequestDto req){
 
-		if(req != null) {
-			throw new CustomException(UserErrorCode.INVALID_PASSWORD);
-		}
-
 		return postMapper.selectAllPosts(req);
+	}
+
+	/**
+	 * 게시물 등록
+	 * @param PostRequestDto
+	 */
+	public void createPost(PostRequestDto req) {
+
+		postMapper.createPost(req);
 	}
 
 }

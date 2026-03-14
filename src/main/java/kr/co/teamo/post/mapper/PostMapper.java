@@ -17,4 +17,11 @@ public interface PostMapper {
 	 */
 	List<PostResponseDto> selectAllPosts(PostRequestDto req);
 
+	/**
+	 * 게시물 등록
+	 * @param PostRequestDto
+	 *
+	 */
+	void createPost(PostRequestDto req);
+
 }
