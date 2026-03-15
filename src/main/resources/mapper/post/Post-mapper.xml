@@ -9,22 +9,32 @@
     <select id="selectAllPosts" resultType="PostResponseDto" >
 
        SELECT
-				POST_ID		/* 게시판아이디 */
-			  , USER_ID		/* 사용자아이디 */
-			  , CATEGORY_ID /* 카테고리아이디 */
-			  , TITLE		/* 제목 */
-			  , CONTENT		/* 내용 */
-			  , STATUS		/* 상태 */
-			  , USE_YN		/* 사용여부 */
-			  , VIEW_CNT	/* 조회수 */
-			  , REG_DT		/* 등록일시 */
-			  , MOD_DT		/* 수정일시 */
-	   FROM POST
+				A.POST_ID				/* 게시판아이디 */
+			  , A.USER_ID				/* 사용자아이디 */
+			  , A.TITLE					/* 제목 */
+			  , A.CONTENT				/* 내용 */
+			  , A.RECRUIT_TYPE_CD		/* 모집구분코드 */
+			  , A.RECRUIT_CNT			/* 모집인원 */
+			  , A.PROGRESS_TYPE_CD		/* 진행방식구분코드 */
+			  , A.PROGRESS_PERIOD		/* 진행기간 */
+			  , A.RECRUIT_END_DATE		/* 모집마감일 */
+			  , A.RECRUIT_POSIT_TYPE_CD	/* 모집포지션구분코드 */
+			  , A.CONTACT_METHOD_CD		/* 연락방법구분코드 */
+			  , B. TECH_STACK_CD		/* 기술스택구분코드 */
+			  , A.VIEW_CNT				/* 조회수 */
+			  , A.REG_DT				/* 등록일시 */
+			  , A.MOD_DT				/* 수정일시 */
+	   FROM POST A
+	   INNER JOIN POST_TECH_STACK B
+	   ON A.POST_ID  = B.POST_ID
 	   WHERE USE_YN = 'Y'
     </select>
 
 
     <insert id="createPost" parameterType="PostRequestDto">
+    <selectKey keyProperty="postId" resultType="long" order="BEFORE">
+   	 SELECT POST_SEQ.NEXTVAL FROM DUAL
+	</selectKey>
 
 	    INSERT INTO POST(
 				POST_ID					/* 게시판 아이디 */
@@ -35,7 +45,6 @@
 			  , RECRUIT_CNT				/* 모집인원 */
 			  , PROGRESS_TYPE_CD		/* 진행방식구분코드 */
 			  , PROGRESS_PERIOD			/* 진행기간 */
-			  , TECH_STACK_TYPE_CD		/* 기술스택구분코드 */
 			  , RECRUIT_END_DATE		/* 모집마감일 */
 			  , RECRUIT_POSIT_TYPE_CD	/* 모집포지션구분코드 */
 			  , CONTACT_METHOD_CD		/* 연락방법구분코드 */
@@ -43,7 +52,7 @@
 			  , VIEW_CNT				/* 조회수 */
 			  , REG_DT					/* 등록일 */
 		)VALUES(
-			    POST_SEQ.NEXTVAL		/* 게시판 아이디 */
+			    #{postId}				/* 게시판 아이디 */
 			  , #{userId}				/* 사용자 아이디 */
 			  , #{title}				/* 제목 */
 			  , #{content}				/* 내용 */
@@ -51,7 +60,6 @@
 			  , #{recruitCnt}			/* 모집인원 */
 			  , #{progressTypeCd}		/* 진행방식구분코드 */
 			  , #{progressPeriod}		/* 진행기간 */
-			  , #{techStackTypeCd}		/* 기술스택구분코드 */
 			  , #{recruitEndDate}		/* 모집마감일 */
 			  , #{recruitPositTypeCd}	/* 모집포지션구분코드 */
 			  , #{contactMethodCd}		/* 연락방법구분코드 */
@@ -60,6 +68,21 @@
 			  , SYSDATE					/* 등록일 */
 		)
     </insert>
+
+
+	 <insert id="insertPostTechStack">
+	    INSERT ALL
+	    <foreach collection="techStackTypeCd" item="tech">
+	        INTO POST_TECH_STACK(
+	            POST_ID,
+	            TECH_STACK_CD
+	        ) VALUES (
+	            #{postId},
+	            #{tech}
+	        )
+	    </foreach>
+	    SELECT 1 FROM DUAL
+	</insert>
 
 
 

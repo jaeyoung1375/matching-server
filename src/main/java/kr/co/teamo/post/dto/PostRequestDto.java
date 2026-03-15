@@ -2,6 +2,7 @@ package kr.co.teamo.post.dto;
 
 
 import java.util.Date;
+import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,7 @@ public class PostRequestDto {
 	private String progressPeriod;
 
 	@Schema(description = "기술스택구분코드")
-	private String techStackTypeCd;
+	private List<String> techStackTypeCd;
 
 	@Schema(description = "모집마감일")
 	private Date recruitEndDate;

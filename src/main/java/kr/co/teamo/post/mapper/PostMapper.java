@@ -24,4 +24,6 @@ public interface PostMapper {
 	 */
 	void createPost(PostRequestDto req);
 
+	void insertPostTechStack(PostRequestDto req);
+
 }

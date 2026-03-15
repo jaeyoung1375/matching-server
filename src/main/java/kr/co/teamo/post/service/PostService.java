@@ -3,6 +3,7 @@ package kr.co.teamo.post.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
@@ -31,9 +32,11 @@ public class PostService {
 	 * 게시물 등록
 	 * @param PostRequestDto
 	 */
+	@Transactional
 	public void createPost(PostRequestDto req) {
 
 		postMapper.createPost(req);
+		postMapper.insertPostTechStack(req);
 	}
 
 }
