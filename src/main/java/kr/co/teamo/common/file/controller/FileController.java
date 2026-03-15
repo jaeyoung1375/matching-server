@@ -1,0 +1,28 @@
+package kr.co.teamo.common.file.controller;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import kr.co.teamo.common.file.service.FileService;
+import kr.co.teamo.common.response.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@RestController
+@RequiredArgsConstructor
+@Slf4j
+public class FileController {
+
+	private final FileService fileService;
+
+	@PostMapping("/file/editor-image")
+	public ApiResponse<String> uploadEditorImage(@RequestPart("file") MultipartFile file){
+
+		String url = fileService.upload(file);
+
+		return ApiResponse.ok(url);
+	}
+
+}

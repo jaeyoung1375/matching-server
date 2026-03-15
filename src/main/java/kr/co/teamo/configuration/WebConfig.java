@@ -1,16 +1,31 @@
 package kr.co.teamo.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+	@Value("${file.upload.path}")
+	private String uploadPath;
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.addPathPrefix("/api/v1",
             c -> c.isAnnotationPresent(RestController.class));
     }
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+		registry
+			.addResourceHandler("/upload/editor/**") // 브라우저에서 접근할 URL
+			.addResourceLocations("file:///"+uploadPath + "/editor"); // 실제 서버 파일 경로
+	}
+
+
 }

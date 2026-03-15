@@ -16,7 +16,8 @@ public enum CommonErrorCode implements ResponseCode {
 	/** 조회 데이터가 존재하지 않습니다. */
 	DATA_NOT_FOUND("0001", HttpStatus.OK, "조회 데이터가 존재하지 않습니다."),
 	/** 서버 오류가 발생했습니다. */
-	INTERNAL_SERVER_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+	INTERNAL_SERVER_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
+	FILE_EMPTY("0002", HttpStatus.OK, "파일이 없습니다.");
 
 
 

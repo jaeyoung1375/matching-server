@@ -33,6 +33,9 @@ public class FileDto {
 	@Schema(description = "파일확장자")
 	private String fileExt;
 
+	@Schema(description = "임시파일여부")
+	private String tempYn;
+
 	@Schema(description = "삭제여부")
 	private String delYn;
 
