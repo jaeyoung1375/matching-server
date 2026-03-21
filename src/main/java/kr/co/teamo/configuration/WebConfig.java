@@ -13,6 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
 	@Value("${file.upload.path}")
 	private String uploadPath;
 
+	@Value("${file.upload.server}")
+	private String uploadServer;
+
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.addPathPrefix("/api/v1",
@@ -23,8 +26,8 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 		registry
-			.addResourceHandler("/upload/editor/**") // 브라우저에서 접근할 URL
-			.addResourceLocations("file:///"+uploadPath + "/editor"); // 실제 서버 파일 경로
+			.addResourceHandler(uploadServer + "/**") // 브라우저에서 접근할 URL
+			.addResourceLocations("file:"+uploadPath + "/"); // 실제 서버 파일 경로
 	}
 
 

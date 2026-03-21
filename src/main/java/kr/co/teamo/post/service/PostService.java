@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
+import kr.co.teamo.common.file.dto.FileDto;
+import kr.co.teamo.common.file.service.FileService;
+import kr.co.teamo.post.dto.PostFileDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
 import kr.co.teamo.post.mapper.PostMapper;
@@ -17,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
 	private final PostMapper postMapper;
+
+	private final FileService fileService;
 
 	/**
 	 * 게시물 목록 조회
@@ -35,8 +40,24 @@ public class PostService {
 	@Transactional
 	public void createPost(PostRequestDto req) {
 
+		// 1. POST 테이블 INSERT
 		postMapper.createPost(req);
+		// 2. POST_TECH 테이블 INSERT
 		postMapper.insertPostTechStack(req);
+		// 3. TEMP_YN = N 업데이트
+		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());
+		fileService.confirmTempFiles(req.getTempKey());
+		// 4. 게시판 <-> 파일 연결
+
+
+		PostFileDto postFiles = PostFileDto.builder()
+				.postId(req.getPostId())
+				.fileId(tempFiles.get(0).getFileId())
+				.build();
+
+		postMapper.insertPostFiles(postFiles);
+
+
 	}
 
 }

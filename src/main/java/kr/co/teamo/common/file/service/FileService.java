@@ -1,7 +1,12 @@
 package kr.co.teamo.common.file.service;
 
-import java.io.File;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -20,15 +25,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileService {
 
-	@Value("${file.upload.editor-path}")
+	@Value("${file.upload.path}")
 	private String uploadPath;
 
-	@Value("${file.base-url}")
-	private String baseUrl;
+	@Value("${file.upload.server}")
+	private String uploadServer;
 
 	private final FileMapper fileMapper;
 
-	public String upload(MultipartFile file) {
+	public String upload(MultipartFile file, String tempKey) throws IOException {
 
 		if(file.isEmpty()) {
 			throw new CustomException(CommonErrorCode.FILE_EMPTY);
@@ -43,17 +48,23 @@ public class FileService {
 		// UUID 파일명 생성
 		String saveName = UUID.randomUUID() + ext;
 
-		File dir = new File(uploadPath + File.separator);
+		LocalDate today = LocalDate.now();
 
-		if (!dir.exists()) {
-		    dir.mkdirs();
-		}
+		String year = String.valueOf(today.getYear());
+		String month = String.format("%02d", today.getMonthValue());
+		String day = String.format("%02d", today.getDayOfMonth());
 
-		// 저장경로
-		File saveFile = new File(dir, saveName);
+		// D:upload/2026/03/21
+		Path dirPath = Paths.get(uploadPath, year, month, day);
+
+		// 폴더 생성 (없으면 자동 생성)
+		Files.createDirectories(dirPath);
+
+		// 파일 경로
+		Path savePath = dirPath.resolve(saveName);
 
 		try {
-			file.transferTo(saveFile);
+			file.transferTo(savePath.toFile());
 		}catch(IOException e) {
 			throw new RuntimeException("파일 저장 실패", e);
 		}
@@ -61,13 +72,40 @@ public class FileService {
 		FileDto fileDto = FileDto.builder()
 				.orgFileNm(originalName)
 				.saveFileNm(saveName)
-				.filePath(uploadPath)
+				.filePath(dirPath.toString())
 				.fileSize(file.getSize())
 				.fileExt(ext.substring(1))
 				.tempYn("Y")
+				.tempKey(tempKey)
 				.build();
 		fileMapper.insertFile(fileDto);
 
-		return baseUrl+ "/upload/editor/"+ saveName;
+		Path url =  Paths.get(uploadServer, year, month, day);
+		Path realUrl = url.resolve(saveName);
+
+
+		return realUrl.toString();
+	}
+
+	/**
+	 * 임시파일을 제거하는 서비스
+	 * @param file
+	 */
+	public void confirmTempFiles(String tempKey) {
+
+		if(tempKey == null) return;
+
+		fileMapper.confirmTempFiles(tempKey);
+
+	}
+
+	/**
+	 * 임시파일 리스트 조회
+	 * @param tempKey
+	 * @return
+	 */
+	public List<FileDto> selectTempFiles(String tempKey){
+
+		return fileMapper.selectTempFiles(tempKey);
 	}
 }

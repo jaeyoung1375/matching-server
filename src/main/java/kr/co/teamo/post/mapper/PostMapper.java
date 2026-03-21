@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import kr.co.teamo.post.dto.PostFileDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
 
@@ -25,5 +26,7 @@ public interface PostMapper {
 	void createPost(PostRequestDto req);
 
 	void insertPostTechStack(PostRequestDto req);
+
+	void insertPostFiles(PostFileDto postFileDto);
 
 }

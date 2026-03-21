@@ -36,6 +36,9 @@ public class FileDto {
 	@Schema(description = "임시파일여부")
 	private String tempYn;
 
+	@Schema(description = "임시파일키")
+	private String tempKey;
+
 	@Schema(description = "삭제여부")
 	private String delYn;
 

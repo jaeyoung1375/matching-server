@@ -27,5 +27,5 @@ logging:
 file:
   upload:
     path: D:/upload	   
-    editor-path: D:/upload/editor
-  base-url: http://localhost:9090
+    server: /upload
+    

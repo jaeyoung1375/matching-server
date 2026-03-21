@@ -70,7 +70,7 @@
     </insert>
 
 
-	 <insert id="insertPostTechStack">
+	 <insert id="insertPostTechStack" parameterType="PostRequestDto">
 	    INSERT ALL
 	    <foreach collection="techStackTypeCd" item="tech">
 	        INTO POST_TECH_STACK(
@@ -83,6 +83,24 @@
 	    </foreach>
 	    SELECT 1 FROM DUAL
 	</insert>
+
+	<insert id="insertPostFiles" parameterType="PostFileDto">
+
+		INSERT INTO POST_FILE(
+				POST_FILE_ID
+			  , POST_ID
+			  , FILE_ID
+			  , REG_DT
+		)VALUES(
+			    POST_FILE_SEQ.NEXTVAL
+			  , #{postId}
+			  , #{fileId}
+			  , SYSDATE
+		)
+	</insert>
+
+
+
 
 
 

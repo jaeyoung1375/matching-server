@@ -63,6 +63,9 @@ public class PostRequestDto {
 	@Schema(description = "연락방법구분코드")
 	private String contactMethodCd;
 
+	@Schema(description = "임시파일키")
+	private String tempKey;
+
 
 
 

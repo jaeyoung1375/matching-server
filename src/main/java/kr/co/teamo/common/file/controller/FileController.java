@@ -1,5 +1,7 @@
 package kr.co.teamo.common.file.controller;
 
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,9 +20,9 @@ public class FileController {
 	private final FileService fileService;
 
 	@PostMapping("/file/editor-image")
-	public ApiResponse<String> uploadEditorImage(@RequestPart("file") MultipartFile file){
+	public ApiResponse<String> uploadEditorImage(@RequestPart("file") MultipartFile file, @RequestPart("tempKey") String tempKey) throws IOException{
 
-		String url = fileService.upload(file);
+		String url = fileService.upload(file, tempKey);
 
 		return ApiResponse.ok(url);
 	}
