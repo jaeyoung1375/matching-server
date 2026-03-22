@@ -3,6 +3,7 @@ package kr.co.teamo.post.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import kr.co.teamo.post.dto.PostFileDto;
 import kr.co.teamo.post.dto.PostRequestDto;
@@ -27,6 +28,6 @@ public interface PostMapper {
 
 	void insertPostTechStack(PostRequestDto req);
 
-	void insertPostFiles(PostFileDto postFileDto);
+	void insertPostFiles(@Param("list") List<PostFileDto> postFileDto);
 
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.teamo.common.code.CommonErrorCode;
+import kr.co.teamo.common.code.FileErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.file.dto.FileDto;
 import kr.co.teamo.common.file.mapper.FileMapper;
@@ -36,7 +37,7 @@ public class FileService {
 	public String upload(MultipartFile file, String tempKey) throws IOException {
 
 		if(file.isEmpty()) {
-			throw new CustomException(CommonErrorCode.FILE_EMPTY);
+			throw new CustomException(FileErrorCode.FILE_EMPTY);
 		}
 
 		// 원본파일명
@@ -66,7 +67,7 @@ public class FileService {
 		try {
 			file.transferTo(savePath.toFile());
 		}catch(IOException e) {
-			throw new RuntimeException("파일 저장 실패", e);
+			throw new CustomException(FileErrorCode.FILE_UPLOAD_FAIL);
 		}
 
 		FileDto fileDto = FileDto.builder()

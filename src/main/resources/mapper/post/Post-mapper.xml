@@ -84,24 +84,27 @@
 	    SELECT 1 FROM DUAL
 	</insert>
 
-	<insert id="insertPostFiles" parameterType="PostFileDto">
-
-		INSERT INTO POST_FILE(
-				POST_FILE_ID
-			  , POST_ID
-			  , FILE_ID
-			  , REG_DT
-		)VALUES(
-			    POST_FILE_SEQ.NEXTVAL
-			  , #{postId}
-			  , #{fileId}
-			  , SYSDATE
-		)
+	<insert id="insertPostFiles" parameterType="java.util.List">
+	  INSERT INTO POST_FILE (
+	    POST_FILE_ID,
+	    POST_ID,
+	    FILE_ID,
+	    REG_DT
+	  )
+	  SELECT
+	    POST_FILE_SEQ.NEXTVAL,
+	    D1.POST_ID,
+	    D1.FILE_ID,
+	    SYSDATE
+	  FROM (
+	    <foreach collection="list" item="item" separator="UNION ALL">
+	      SELECT
+	        #{item.postId} AS POST_ID,
+	        #{item.fileId} AS FILE_ID
+	      FROM dual
+	    </foreach>
+	  ) D1
 	</insert>
-
-
-
-
 
 
 
