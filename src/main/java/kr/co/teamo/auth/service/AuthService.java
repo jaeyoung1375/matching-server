@@ -144,7 +144,7 @@ public class AuthService {
     }
 
     // 이메일 중복 체크
-    public boolean existsByEmail(String email) {
+    public Boolean existsByEmail(String email) {
         return authMapper.existsEmail(email) > 0;
     }
 

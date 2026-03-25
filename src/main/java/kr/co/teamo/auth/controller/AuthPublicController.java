@@ -30,8 +30,10 @@ public class AuthPublicController {
 
     @Operation(summary = "회원가입 이메일 중복검사", description = "회원가입 이메일 중복검사 API")
     @GetMapping("/exists-email")
-    public boolean existsByEmail(@RequestParam String email) {
-        return authService.existsByEmail(email);
+    public ApiResponse<Boolean> existsByEmail(@RequestParam String email) {
+        return ApiResponse.ok(
+                authService.existsByEmail(email)
+        );
     }
 
     @Operation(summary = "언어 종류 조회", description = "언어 종류 조회 API")
