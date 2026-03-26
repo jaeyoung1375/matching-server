@@ -1,6 +1,9 @@
 package kr.co.teamo.post.dto;
 
 
+import java.util.Date;
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +38,38 @@ public class PostRequestDto {
 
 	@Schema(description = "조회수")
 	private Long viewCnt;
+
+	@Schema(description = "모집구분코드")
+	private String recruitTypeCd;
+
+	@Schema(description = "모집인원")
+	private Long recruitCnt;
+
+	@Schema(description = "진행방식구분코드")
+	private String progressTypeCd;
+
+	@Schema(description = "진행기간")
+	private String progressPeriod;
+
+	@Schema(description = "기술스택구분코드")
+	private List<String> techStackTypeCd;
+
+	@Schema(description = "모집마감일")
+	private Date recruitEndDate;
+
+	@Schema(description = "모집포지션구분코드")
+	private String recruitPositTypeCd;
+
+	@Schema(description = "연락방법구분코드")
+	private String contactMethodCd;
+
+	@Schema(description = "임시파일키")
+	private String tempKey;
+
+
+
+
+
 
 
 

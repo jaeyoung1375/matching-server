@@ -1,14 +1,11 @@
 package kr.co.teamo.code.service;
 
 import java.util.List;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-
-import kr.co.teamo.code.dto.CodeRequestDto;
 import kr.co.teamo.code.dto.CodeResponseDto;
 import kr.co.teamo.code.mapper.CodeMapper;
-import kr.co.teamo.common.code.UserErrorCode;
-import kr.co.teamo.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,11 +16,12 @@ public class CodeService {
 
 	private final CodeMapper codeMapper;
 
-	public List<CodeResponseDto> getCodeList(CodeRequestDto requestDto){
+	public Map<String,List<CodeResponseDto>> getCodeList(List<String> comCdIds){
 
-		throw  new CustomException(UserErrorCode.INVALID_INFO);
+		List<CodeResponseDto> codes = codeMapper.getCodeList(comCdIds);
 
-		// return codeMapper.getCodeList(requestDto);
+		 return codes.stream()
+				 .collect(Collectors.groupingBy(CodeResponseDto::getComCdId));
 	}
 
 }

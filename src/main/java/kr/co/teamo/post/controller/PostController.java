@@ -3,6 +3,7 @@ package kr.co.teamo.post.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,5 +28,13 @@ public class PostController {
 		List<PostResponseDto> posts = postService.selectAllPosts(req);
 
 		return ApiResponse.ok(posts);
+	}
+
+	@PostMapping("/posts")
+	public ApiResponse<?> createPost(@RequestBody PostRequestDto req){
+
+		postService.createPost(req);
+		return ApiResponse.ok();
+
 	}
 }
