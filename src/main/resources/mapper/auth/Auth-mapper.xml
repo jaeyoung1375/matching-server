@@ -33,7 +33,7 @@
         #{passwordHash},
         #{status},
         #{name},
-        #{phone},
+        #{phone, jdbcType=VARCHAR},
         'USER',
         SYSDATE,
         SYSDATE,
@@ -86,6 +86,7 @@
         <result property="phone" column="PHONE"/>
         <result property="role" column="ROLE"/>
         <result property="profileFileId" column="PROFILE_FILE_ID"/>
+        <result property="provider" column="PROVIDER"/>
 
         <collection property="languages" ofType="TechStackResponse">
             <result property="dtlCdId" column="DTL_CD_ID"/>
@@ -103,12 +104,15 @@
             u.ROLE,
             u.PROFILE_FILE_ID,
             ccd.DTL_CD_ID,
-            ccd.DTL_CD_NM
+            ccd.DTL_CD_NM,
+            sa.PROVIDER
         FROM USERS u
                  LEFT JOIN USER_TECH_STACK uts
                            ON uts.USER_ID = u.USER_ID
                  LEFT JOIN CMM_CODE_DTL ccd
                            ON ccd.DTL_CD_ID = uts.DTL_CD_ID
+                 LEFT JOIN SOCIAL_ACCOUNTS sa
+                           ON sa.USER_ID = u.USER_ID
         WHERE u.USER_ID = #{userId}
     </select>
 
@@ -138,4 +142,35 @@
         WHERE USER_ID = #{userId}
     </delete>
 
+    <select id="findSocialAccount" resultType="SocialAccount">
+        SELECT *
+        FROM SOCIAL_ACCOUNTS
+        WHERE PROVIDER = #{provider}
+          AND PROVIDER_USER_ID = #{providerUserId}
+    </select>
+
+    <insert id="insertSocialAccount">
+        INSERT INTO SOCIAL_ACCOUNTS (
+            SOCIAL_ID,
+            USER_ID,
+            PROVIDER,
+            PROVIDER_USER_ID,
+            REG_DT
+        ) VALUES (
+                     SOCIAL_SEQ.NEXTVAL,
+                     #{userId},
+                     #{provider},
+                     #{providerUserId},
+                     SYSDATE
+                 )
+    </insert>
+
+    <select id="existsByUserId" parameterType="long" resultType="boolean">
+        SELECT CASE
+                   WHEN COUNT(1) > 0 THEN 1
+                   ELSE 0
+                   END
+        FROM SOCIAL_ACCOUNTS
+        WHERE USER_ID = #{userId}
+    </select>
 </mapper>

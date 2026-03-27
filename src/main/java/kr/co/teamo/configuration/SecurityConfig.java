@@ -1,7 +1,9 @@
 package kr.co.teamo.configuration;
 
 import kr.co.teamo.auth.filter.JwtAuthenticationFilter;
+import kr.co.teamo.auth.handler.OAuth2SuccessHandler;
 import kr.co.teamo.auth.security.RestAuthenticationEntryPoint;
+import kr.co.teamo.auth.service.CustomOAuth2UserService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,14 +24,14 @@ public class SecurityConfig {
     private final CorsConfig corsConfig;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtTokenUtil jwtTokenUtil) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtTokenUtil jwtTokenUtil, CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
 
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenUtil);
 
         http
                 .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .exceptionHandling(eh -> eh.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -40,6 +42,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(user -> user
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

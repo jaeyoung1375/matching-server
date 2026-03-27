@@ -156,17 +156,86 @@ public class AuthService {
     // 마이페이지 수정
     @Transactional
     public void updateMe(Long userId, UpdateUserRequest request){
+        // 🔥 1. 소셜 로그인 여부 체크
+        boolean isSocialUser = authMapper.existsByUserId(userId);
+
+        if (isSocialUser && request.getPasswordHash() != null && !request.getPasswordHash().isBlank()) {
+            throw new CustomException(UserErrorCode.SOCIAL_PW_BLOCKED);
+        }
+
+        // 2. 비밀번호 인코딩
         String encodedPassword = null;
         if(request.getPasswordHash() != null && !request.getPasswordHash().isBlank()){
             encodedPassword = passwordEncoder.encode(request.getPasswordHash());
         }
 
-        authMapper.updateUser(userId, request.getName(),encodedPassword);
+        // 3. 유저 정보 수정
+        authMapper.updateUser(userId, request.getName(), encodedPassword);
+
+        // 4. 기술스택 초기화
         authMapper.deleteUserLanguage(userId);
+
+        // 5. 기술스택 재등록
         if(request.getDtlCdIds() != null){
             for(String dtlCdId : request.getDtlCdIds()){
-                authMapper.insertUserLanguage(userId,dtlCdId);
+                authMapper.insertUserLanguage(userId, dtlCdId);
             }
         }
+    }
+
+    // 소셜 로그인 추가(google)
+    @Transactional
+    public SocialLoginResponse socialLogin(
+            String email,
+            String name,
+            String provider,
+            String providerUserId
+    ) {
+        SocialAccount account = authMapper.findSocialAccount(provider, providerUserId);
+
+        Long userId;
+        boolean isNew = false;
+
+        if (account != null) {
+            userId = account.getUserId();
+        } else {
+            LoginDto user = authMapper.findByEmail(email);
+
+            if (user != null) {
+                userId = user.getUserId();
+
+                authMapper.insertSocialAccount(
+                        userId,
+                        provider,
+                        providerUserId
+                );
+
+            } else {
+                UserInsertDto dto = new UserInsertDto();
+                dto.setEmail(email);
+                dto.setPasswordHash("SOCIAL_LOGIN");
+                dto.setStatus("ACTIVE");
+                dto.setName(name);
+                dto.setPhone(null);
+
+                authMapper.insertUser(dto);
+                userId = dto.getUserId();
+
+                authMapper.insertSocialAccount(
+                        userId,
+                        provider,
+                        providerUserId
+                );
+
+                isNew = true;
+            }
+        }
+
+        String accessToken = jwtTokenUtil.createAccessToken(userId);
+        String refreshToken = jwtTokenUtil.createRefreshToken(userId);
+
+        refreshTokenRedisService.save(userId, refreshToken);
+
+        return new SocialLoginResponse(accessToken, refreshToken, isNew);
     }
 }

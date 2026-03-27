@@ -2,6 +2,7 @@ spring:
   config:
     activate:
       on-profile: local
+    import: optional:application-secret.yml
   datasource:
     url: jdbc:p6spy:oracle:thin:@yggcv8zldawsd5fk_medium?TNS_ADMIN=C:/wallet
     username: dev

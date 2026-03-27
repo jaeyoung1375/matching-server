@@ -17,5 +17,6 @@ public class User {
     private String phone;
     private String role;
     private String profileImageUrl;
+    private String provider;
     private List<TechStackResponse> languages = new ArrayList<>();
 }

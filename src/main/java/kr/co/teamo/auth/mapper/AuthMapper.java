@@ -1,9 +1,6 @@
 package kr.co.teamo.auth.mapper;
 
-import kr.co.teamo.auth.dto.LoginDto;
-import kr.co.teamo.auth.dto.TechStackResponse;
-import kr.co.teamo.auth.dto.User;
-import kr.co.teamo.auth.dto.UserInsertDto;
+import kr.co.teamo.auth.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -23,4 +20,14 @@ public interface AuthMapper {
     List<TechStackResponse> findAll();
     void updateUser(@Param("userId") Long userId, @Param("name") String name, @Param("passwordHash") String passwordHash);
     void deleteUserLanguage(Long userId);
+    SocialAccount findSocialAccount(
+            @Param("provider") String provider,
+            @Param("providerUserId") String providerUserId
+    );
+    void insertSocialAccount(
+            @Param("userId") Long userId,
+            @Param("provider") String provider,
+            @Param("providerUserId") String providerUserId
+    );
+    boolean existsByUserId(Long userId);
 }
