@@ -44,6 +44,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = loginResponse.getAccessToken();
         boolean isNew = loginResponse.isNew();
 
-        response.sendRedirect("http://localhost:3000/oauth?token=" + accessToken + "&isNew=" + isNew);
+        response.sendRedirect("http://localhost:3000/?token=" + accessToken + "&isNew=" + isNew);
     }
 }
