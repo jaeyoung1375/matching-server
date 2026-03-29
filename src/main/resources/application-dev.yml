@@ -16,7 +16,8 @@ logging:
   level:
     root: debug
   file:
-    name: /opt/app/logs/app.log
+    path: /opt/app/logs
+    name: app.log
 
 file:
   upload:
