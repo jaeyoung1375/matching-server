@@ -17,3 +17,7 @@ logging:
   file:
     name: /opt/app/logs/app.log
 
+file:
+  upload:
+    path: /opt/app/upload
+    server: /upload
