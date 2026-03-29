@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .exceptionHandling(eh -> eh.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/v1/**").permitAll()
+                        .requestMatchers("/api/v1/public/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

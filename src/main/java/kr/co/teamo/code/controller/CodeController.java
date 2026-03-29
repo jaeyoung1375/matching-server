@@ -26,7 +26,7 @@ public class CodeController {
 	private final CodeService codeService;
 
 	@Operation(summary = "공통코드조회", description = "공통코드를 조회한다")
-	@GetMapping("/codes")
+	@GetMapping("/public/codes")
 	public ApiResponse<Map<String, List<CodeResponseDto>>> getCodeList(@RequestParam(name = "comCdIds")  List<String> comCdIds) {
 
 		return ApiResponse.ok(codeService.getCodeList(comCdIds));

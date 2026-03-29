@@ -23,7 +23,7 @@ public class MenuController {
 	private final MenuService menuService;
 
 	@Operation(summary = "메뉴 조회", description = "전체 메뉴를 조회합니다")
-	@GetMapping("/menus")
+	@GetMapping("/public/menus")
 	public ApiResponse<List<MenuDto>> menuList() {
 		return ApiResponse.ok(menuService.menuList());
 

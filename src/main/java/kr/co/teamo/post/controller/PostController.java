@@ -23,7 +23,7 @@ public class PostController {
 
 	private final PostService postService;
 
-	@GetMapping("/posts")
+	@GetMapping("/public/posts")
 	public ApiResponse<List<PostResponseDto>> posts(@ModelAttribute @Valid PostRequestDto req){
 
 		List<PostResponseDto> posts = postService.selectAllPosts(req);
@@ -31,7 +31,7 @@ public class PostController {
 		return ApiResponse.ok(posts);
 	}
 
-	@PostMapping("/posts")
+	@PostMapping("/public/posts")
 	public ApiResponse<?> createPost(@RequestBody PostRequestDto req){
 
 		postService.createPost(req);

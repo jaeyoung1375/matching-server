@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/auth/public")
+@RequestMapping("/public/auth")
 public class AuthPublicController {
 
     private final AuthService authService;
