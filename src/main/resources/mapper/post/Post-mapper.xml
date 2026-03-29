@@ -8,26 +8,41 @@
      <!-- 전체 메뉴 조회-->
     <select id="selectAllPosts" resultType="PostResponseDto" >
 
-       SELECT
-				A.POST_ID				/* 게시판아이디 */
-			  , A.USER_ID				/* 사용자아이디 */
-			  , A.TITLE					/* 제목 */
-			  , A.CONTENT				/* 내용 */
-			  , A.RECRUIT_TYPE_CD		/* 모집구분코드 */
-			  , A.RECRUIT_CNT			/* 모집인원 */
-			  , A.PROGRESS_TYPE_CD		/* 진행방식구분코드 */
-			  , A.PROGRESS_PERIOD		/* 진행기간 */
-			  , A.RECRUIT_END_DATE		/* 모집마감일 */
-			  , A.RECRUIT_POSIT_TYPE_CD	/* 모집포지션구분코드 */
-			  , A.CONTACT_METHOD_CD		/* 연락방법구분코드 */
-			  , B. TECH_STACK_CD		/* 기술스택구분코드 */
-			  , A.VIEW_CNT				/* 조회수 */
-			  , A.REG_DT				/* 등록일시 */
-			  , A.MOD_DT				/* 수정일시 */
-	   FROM POST A
-	   INNER JOIN POST_TECH_STACK B
-	   ON A.POST_ID  = B.POST_ID
-	   WHERE USE_YN = 'Y'
+     SELECT
+		     A.POST_ID
+		   , A.USER_ID
+		   , A.title
+		   , A.PROGRESS_TYPE_CD
+		   , C1.DTL_CD_NM AS PROGRESS_TYPE_NM
+		   , A.PROGRESS_PERIOD
+		   , A.RECRUIT_POSIT_TYPE_CD
+		   , C2.DTL_CD_NM AS RECRUIT_POSIT_TYPE_NM
+		   , A.RECRUIT_TYPE_CD
+		   , C3.DTL_CD_NM AS RECRUIT_TYPE_NM
+		   , B.TECH_STACK
+		   , TO_CHAR(A.RECRUIT_END_DATE, 'YYYYMMDD') AS RECRUIT_END_DATE
+		   , A.STATUS
+		   , A.VIEW_CNT
+	FROM POST A
+	LEFT JOIN (
+		SELECT
+				POST_ID
+			  , LISTAGG(TECH_STACK_CD, ',')
+			    WITHIN GROUP (ORDER BY TECH_STACK_CD) AS TECH_STACK
+		FROM POST_TECH_STACK
+		GROUP BY POST_ID
+	)B
+    ON A.POST_ID = B.POST_ID
+	LEFT JOIN CMM_CODE_DTL C1
+      ON C1.COM_CD_ID = 'PROGRESS_TYPE_CD'
+ 	AND C1.DTL_CD_ID = A.PROGRESS_TYPE_CD
+    LEFT JOIN CMM_CODE_DTL C2
+  	  ON C2.COM_CD_ID = 'RECRUIT_POSIT_TYPE_CD'
+ 	AND C2.DTL_CD_ID = A.RECRUIT_POSIT_TYPE_CD
+ 	LEFT JOIN CMM_CODE_DTL C3
+      ON C3.COM_CD_ID = 'RECRUIT_TYPE_CD'
+	AND C3.DTL_CD_ID = A.RECRUIT_TYPE_CD
+ 	ORDER BY A.REG_DT DESC
     </select>
 
 
