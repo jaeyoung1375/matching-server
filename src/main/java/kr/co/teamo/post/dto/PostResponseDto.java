@@ -1,3 +1,4 @@
+
 package kr.co.teamo.post.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +30,33 @@ public class PostResponseDto {
 
 	@Schema(description = "상태")
 	private String status;
+
+	@Schema(description = "진행방식구분코드")
+	private String progressTypeCd;
+
+	@Schema(description = "진행방식구분코드명")
+	private String progressTypeNm;
+
+	@Schema(description = "상태")
+	private String progressPeriod;
+
+	@Schema(description = "모집포지션구분코드")
+	private String recruitPositTypeCd;
+
+	@Schema(description = "모집포지션구분코드명")
+	private String recruitPositTypeNm;
+
+	@Schema(description = "모집구분코드명")
+	private String recruitTypeCd;
+
+	@Schema(description = "모집구분코드명")
+	private String recruitTypeNm;
+
+	@Schema(description = "기술스택")
+	private String techStack;
+
+	@Schema(description = "모집마감일")
+	private String recruitEndDate;
 
 	@Schema(description = "사용여부")
 	private String useYn;
