@@ -5,6 +5,7 @@ import kr.co.teamo.auth.mapper.AuthMapper;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +19,7 @@ import java.util.Map;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Builder
 public class AuthService {
 
     private final AuthMapper authMapper;
@@ -36,12 +38,13 @@ public class AuthService {
             throw new CustomException(UserErrorCode.EMAIL_DUPLICATED);
         }
 
-        UserInsertDto dto = new UserInsertDto();
-        dto.setEmail(email);
-        dto.setPasswordHash(passwordEncoder.encode(req.getPassword()));
-        dto.setStatus("ACTIVE");
-        dto.setName(req.getName().trim());
-        dto.setPhone(req.getPhone().trim());
+        UserInsertDto dto = UserInsertDto.builder()
+        .email(email)
+        .passwordHash(passwordEncoder.encode(req.getPassword()))
+        .status("ACTIVE")
+        .name(req.getName().trim())
+        .phone(req.getPhone().trim())
+        .build();
 
         authMapper.insertUser(dto);
 
@@ -82,7 +85,10 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, refreshToken);
 
-        return new LoginResponse(accessToken, refreshToken);
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     // 토큰 재발급
@@ -111,7 +117,10 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, newRefreshToken);
 
-        return new RefreshResponse(newAccessToken, newRefreshToken);
+        return RefreshResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     // 회원 탈퇴
@@ -211,12 +220,13 @@ public class AuthService {
                 );
 
             } else {
-                UserInsertDto dto = new UserInsertDto();
-                dto.setEmail(email);
-                dto.setPasswordHash("SOCIAL_LOGIN");
-                dto.setStatus("ACTIVE");
-                dto.setName(name);
-                dto.setPhone(null);
+                UserInsertDto dto = UserInsertDto.builder()
+                        .email(email)
+                        .passwordHash("SOCIAL_LOGIN")
+                        .status("ACTIVE")
+                        .name(name)
+                        .phone(null)
+                        .build();
 
                 authMapper.insertUser(dto);
                 userId = dto.getUserId();
@@ -236,6 +246,10 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, refreshToken);
 
-        return new SocialLoginResponse(accessToken, refreshToken, isNew);
+        return SocialLoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .isNew(isNew)
+                .build();
     }
 }
