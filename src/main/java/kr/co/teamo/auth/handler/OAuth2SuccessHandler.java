@@ -6,11 +6,13 @@ import kr.co.teamo.auth.dto.SocialLoginResponse;
 import kr.co.teamo.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -23,27 +25,78 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
+        OAuth2AuthenticationToken oauthToken =
+                (OAuth2AuthenticationToken) authentication;
+
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
 
-        Object emailObj = user.getAttribute("email");
-        Object nameObj = user.getAttribute("name");
-        Object subObj = user.getAttribute("sub");
+        String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
-        String email = emailObj != null ? emailObj.toString() : null;
-        String name = nameObj != null ? nameObj.toString() : null;
-        String providerUserId = subObj != null ? subObj.toString() : null;
+        String email = null;
+        String name = null;
+        String provider = registrationId.toUpperCase();
+        String providerUserId = null;
 
+        switch (registrationId) {
+
+            // ✅ GOOGLE
+            case "google":
+                email = user.getAttribute("email");
+                name = user.getAttribute("name");
+                providerUserId = user.getAttribute("sub");
+                break;
+
+            // ✅ KAKAO
+            case "kakao":
+                Map<String, Object> kakaoAccount = user.getAttribute("kakao_account");
+                Map<String, Object> profile = kakaoAccount != null
+                        ? (Map<String, Object>) kakaoAccount.get("profile")
+                        : null;
+
+                email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
+                name = profile != null ? (String) profile.get("nickname") : null;
+
+                Object kakaoId = user.getAttribute("id");
+                providerUserId = kakaoId != null ? kakaoId.toString() : null;
+                break;
+
+            // ✅ GITHUB (추가된 부분)
+            case "github":
+                email = user.getAttribute("email"); // 없을 수 있음
+                name = user.getAttribute("login"); // username
+                Object githubId = user.getAttribute("id");
+                providerUserId = githubId != null ? githubId.toString() : null;
+                break;
+
+            default:
+                throw new RuntimeException("지원하지 않는 소셜 로그인: " + registrationId);
+        }
+
+        // ✅ providerUserId 필수 체크
         if (providerUserId == null) {
             throw new RuntimeException("providerUserId 없음");
         }
 
-        String provider = "GOOGLE";
+        // ✅ email 없을 경우 (카카오 + GitHub 공통 처리)
+        if (email == null || email.isBlank()) {
+            email = provider + "_" + providerUserId + "@social.local";
+        }
 
-        SocialLoginResponse loginResponse = authService.socialLogin(email, name, provider, providerUserId);
+        // ✅ name 없을 경우 대비 (선택)
+        if (name == null || name.isBlank()) {
+            name = provider + "_user";
+        }
+
+        // ✅ 로그인 처리
+        SocialLoginResponse loginResponse =
+                authService.socialLogin(email, name, provider, providerUserId);
 
         String accessToken = loginResponse.getAccessToken();
         boolean isNew = loginResponse.isNew();
 
-        response.sendRedirect("http://localhost:3000/?token=" + accessToken + "&isNew=" + isNew);
+        // ✅ 프론트로 리다이렉트
+        response.sendRedirect(
+                "http://localhost:3000/?token=" + accessToken + "&isNew=" + isNew
+        );
     }
 }
