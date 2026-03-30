@@ -85,7 +85,10 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, refreshToken);
 
-        return new LoginResponse(accessToken, refreshToken);
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     // 토큰 재발급
@@ -114,7 +117,10 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, newRefreshToken);
 
-        return new RefreshResponse(newAccessToken, newRefreshToken);
+        return RefreshResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     // 회원 탈퇴
@@ -240,6 +246,10 @@ public class AuthService {
 
         refreshTokenRedisService.save(userId, refreshToken);
 
-        return new SocialLoginResponse(accessToken, refreshToken, isNew);
+        return SocialLoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .isNew(isNew)
+                .build();
     }
 }
