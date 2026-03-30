@@ -66,6 +66,9 @@ public class PostRequestDto {
 	@Schema(description = "임시파일키")
 	private String tempKey;
 
+	@Schema(description = "검색어")
+	private String keyword;
+
 
 
 

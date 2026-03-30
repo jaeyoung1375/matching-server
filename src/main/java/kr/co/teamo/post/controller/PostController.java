@@ -31,7 +31,7 @@ public class PostController {
 		return ApiResponse.ok(posts);
 	}
 
-	@PostMapping("/public/posts")
+	@PostMapping("/posts")
 	public ApiResponse<?> createPost(@RequestBody PostRequestDto req){
 
 		postService.createPost(req);

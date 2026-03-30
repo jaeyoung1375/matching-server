@@ -1,0 +1,27 @@
+name: Spring Deploy
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: [self-hosted, backend]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew clean build -x test
+
+      - name: Rename jar
+        run: |
+          cp build/libs/*.jar app.jar
+
+      - name: Restart Spring
+        run: |
+          sudo systemctl restart app.service

@@ -6,7 +6,7 @@
 <mapper namespace="kr.co.teamo.post.mapper.PostMapper">
 
      <!-- 전체 메뉴 조회-->
-    <select id="selectAllPosts" resultType="PostResponseDto" >
+    <select id="selectAllPosts" resultType="PostResponseDto" parameterType="PostRequestDto">
 
      SELECT
 		     A.POST_ID
@@ -42,6 +42,12 @@
  	LEFT JOIN CMM_CODE_DTL C3
       ON C3.COM_CD_ID = 'RECRUIT_TYPE_CD'
 	AND C3.DTL_CD_ID = A.RECRUIT_TYPE_CD
+	<where>
+	<if test="keyword != '' and keyword != null">
+		(A.TITLE LIKE #{keyword} || '%' OR A.CONTENT LIKE #{keyword} || '%')
+	</if>
+
+	</where>
  	ORDER BY A.REG_DT DESC
     </select>
 
