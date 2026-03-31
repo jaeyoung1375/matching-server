@@ -20,7 +20,7 @@ jobs:
 
       - name: Rename jar
         run: |
-          cp build/libs/*.jar app.jar
+          cp build/libs/*.jar /opt/app/app.jar
 
       - name: Restart Spring
         run: |
