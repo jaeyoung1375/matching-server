@@ -2,13 +2,12 @@ spring:
   application:
     name: teamo-server
   profiles:
-    default: local
+    include:
+    - secret
   data:
     redis:
       host: 146.56.116.158
       port: 6379
-  config:
-    import: optional:application-secret.yml
 
 mybatis:
   mapper-locations: classpath:/mapper/**/*-mapper.xml
