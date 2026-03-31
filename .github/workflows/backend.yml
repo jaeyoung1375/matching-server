@@ -18,9 +18,11 @@ jobs:
       - name: Build
         run: ./gradlew clean build -x test
 
-      - name: Rename jar
-        run: |
-          cp build/libs/*.jar /opt/app/app.jar
+	  - name: Rename jar
+		run: |
+		  sudo mkdir -p /opt/app
+		  JAR=$(ls build/libs/*.jar | grep -v plain | head -n 1)
+		  sudo cp $JAR /opt/app/app.jar
 
       - name: Restart Spring
         run: |
