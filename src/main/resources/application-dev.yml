@@ -2,19 +2,23 @@ spring:
   config:
     activate:
       on-profile: dev
-    import: optional:application-secret.yml
   datasource:
-    url: jdbc:oracle:thin:@yggcv8zldawsd5fk_medium?TNS_ADMIN=/opt/oracle/wallet
+    url: jdbc:p6spy:oracle:thin:@yggcv8zldawsd5fk_medium?TNS_ADMIN=/opt/oracle/wallet
     username: dev
     password: Jaeyeong1234
-    driver-class-name: oracle.jdbc.OracleDriver
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
 server:
   port: 9090
   address: 0.0.0.0
 
+decorator:
+  datasource:
+    p6spy:
+      enable: false
+
 logging:
   level:
-    root: debug
+    p6spy: INFO
   file:
     path: /opt/app/logs
     name: app.log
