@@ -43,10 +43,22 @@
       ON C3.COM_CD_ID = 'RECRUIT_TYPE_CD'
 	AND C3.DTL_CD_ID = A.RECRUIT_TYPE_CD
 	<where>
-	<if test="keyword != '' and keyword != null">
-		(A.TITLE LIKE #{keyword} || '%' OR A.CONTENT LIKE #{keyword} || '%')
-	</if>
-
+		<if test="keyword != '' and keyword != null">
+		AND (A.TITLE LIKE #{keyword} || '%' OR A.CONTENT LIKE #{keyword} || '%')
+		</if>
+		<if test="techStackTypeCd != null and techStackTypeCd.size() > 0">
+		AND (
+			<foreach item="item" collection="techStackTypeCd" separator="OR">
+			',' ||  B.TECH_STACK || ','
+			LIKE '%,' || #{item} || ',%')
+			</foreach>
+		</if>
+		<if test="recruitPositTypeCd != '' and recruitPositTypeCd != null">
+		AND RECRUIT_POSIT_TYPE_CD = #{recruitPositTypeCd}
+		</if>
+		<if test="progressTypeCd != '' and progressTypeCd != null">
+		AND PROGRESS_TYPE_CD = #{progressTypeCd}
+		</if>
 	</where>
  	ORDER BY A.REG_DT DESC
     </select>
