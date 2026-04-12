@@ -8,7 +8,7 @@
     </appender>
 
     <!-- 🔥 p6spy 로그 -->
-    <logger name="p6spy" level="TRACE"/>
+    <logger name="p6spy" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
