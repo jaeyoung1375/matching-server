@@ -125,10 +125,26 @@ public class AuthService {
 
     // 회원 탈퇴
     @Transactional
-    public void withdrawUser(Long userId) {
+    public void withdrawUser(Long userId, String currentPassword) {
 
+        User user = authMapper.findById(userId);
+
+    // 일반 로그인만 비밀번호 검증
+        if (!user.getProvider().equals("GOOGLE") && !user.getProvider().equals("KAKAO") && !user.getProvider().equals("GITHUB")) {
+
+            if (currentPassword == null || currentPassword.isEmpty()) {
+                throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
+            }
+
+            if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+        }
+
+        // 탈퇴 처리
         authMapper.withdrawUser(userId);
 
+        // 토큰 삭제
         refreshTokenRedisService.delete(userId);
     }
 

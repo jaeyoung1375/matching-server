@@ -102,6 +102,7 @@
             u.NAME,
             u.PHONE,
             u.ROLE,
+            u.PASSWORD_HASH,
             u.PROFILE_FILE_ID,
             ccd.DTL_CD_ID,
             ccd.DTL_CD_NM,

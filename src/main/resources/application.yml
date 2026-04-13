@@ -4,6 +4,7 @@ spring:
   profiles:
     include:
     - secret
+    active: local
   data:
     redis:
       host: 146.56.116.158

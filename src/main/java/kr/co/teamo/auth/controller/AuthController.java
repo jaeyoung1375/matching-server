@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.teamo.auth.dto.UpdateUserRequest;
 import kr.co.teamo.auth.dto.User;
+import kr.co.teamo.auth.dto.WithdrawRequest;
 import kr.co.teamo.auth.service.AuthService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.response.ApiResponse;
@@ -29,9 +30,10 @@ public class AuthController {
 
     @Operation(summary = "회원탈퇴", description = "회원탈퇴 API")
     @DeleteMapping("/me")
-    public ApiResponse<Void> withdrawMe(){
+    public ApiResponse<Void> withdrawMe(@RequestBody(required = false) WithdrawRequest request){
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
-        authService.withdrawUser(userId);
+        String currentPassword = request != null ? request.getCurrentPassword() : null;
+        authService.withdrawUser(userId, currentPassword);
         return ApiResponse.ok();
     }
 

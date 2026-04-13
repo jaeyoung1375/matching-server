@@ -18,5 +18,6 @@ public class User {
     private String role;
     private String profileImageUrl;
     private String provider;
+    private String passwordHash;
     private List<TechStackResponse> languages = new ArrayList<>();
 }
