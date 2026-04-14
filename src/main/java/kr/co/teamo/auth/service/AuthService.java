@@ -9,12 +9,14 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -130,7 +132,9 @@ public class AuthService {
         User user = authMapper.findById(userId);
 
     // 일반 로그인만 비밀번호 검증
-        if (!user.getProvider().equals("GOOGLE") && !user.getProvider().equals("KAKAO") && !user.getProvider().equals("GITHUB")) {
+        if (!user.getProvider().equals("GOOGLE") &&
+            !user.getProvider().equals("KAKAO") &&
+            !user.getProvider().equals("GITHUB")) {
 
             if (currentPassword == null || currentPassword.isEmpty()) {
                 throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
@@ -141,11 +145,57 @@ public class AuthService {
             }
         }
 
+        // 소셜이면 UNLINK 먼저
+        if(user.getProvider().equals("GOOGLE") ||
+            user.getProvider().equals("KAKAO") ||
+            user.getProvider().equals("GITHUB")) {
+
+            SocialUnlinkDto account = authMapper.findSocialByUserId(userId);
+
+            String provider = account.getProvider();
+            String token = account.getProviderAccessToken();
+            unlink(provider,token);
+        }
+
         // 탈퇴 처리
         authMapper.withdrawUser(userId);
 
         // 토큰 삭제
         refreshTokenRedisService.delete(userId);
+    }
+
+    private void unlink(String provider, String token) {
+        switch (provider) {
+            case "KAKAO":
+                unlinkKakao(token);
+                break;
+            case "GOOGLE":
+                unlinkGoogle(token);
+                break;
+        }
+    }
+
+    public void unlinkKakao(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<?> request = new HttpEntity<>(headers);
+
+        restTemplate.postForEntity(
+                "https://kapi.kakao.com/v1/user/unlink",
+                request,
+                String.class
+        );
+    }
+
+    public void unlinkGoogle(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "https://oauth2.googleapis.com/revoke?token=" + accessToken;
+
+        restTemplate.postForEntity(url, null, String.class);
     }
 
     // 로그인 사용자 조회
@@ -214,7 +264,8 @@ public class AuthService {
             String email,
             String name,
             String provider,
-            String providerUserId
+            String providerUserId,
+            String providerAccessToken
     ) {
         SocialAccount account = authMapper.findSocialAccount(provider, providerUserId);
 
@@ -223,6 +274,12 @@ public class AuthService {
 
         if (account != null) {
             userId = account.getUserId();
+
+            User user = authMapper.findById(userId);
+
+            if ("DEACTIVATE".equals(user.getStatus())) {
+                authMapper.reactivateUser(userId);
+            }
         } else {
             LoginDto user = authMapper.findByEmail(email);
 
@@ -232,7 +289,8 @@ public class AuthService {
                 authMapper.insertSocialAccount(
                         userId,
                         provider,
-                        providerUserId
+                        providerUserId,
+                        providerAccessToken
                 );
 
             } else {
@@ -250,7 +308,8 @@ public class AuthService {
                 authMapper.insertSocialAccount(
                         userId,
                         provider,
-                        providerUserId
+                        providerUserId,
+                        providerAccessToken
                 );
 
                 isNew = true;

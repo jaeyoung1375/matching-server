@@ -6,6 +6,8 @@ import kr.co.teamo.auth.dto.SocialLoginResponse;
 import kr.co.teamo.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -19,6 +21,7 @@ import java.util.Map;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
+    private final OAuth2AuthorizedClientService authorizedClientService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -36,6 +39,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String name = null;
         String provider = registrationId.toUpperCase();
         String providerUserId = null;
+
+        OAuth2AuthorizedClient client =
+                authorizedClientService.loadAuthorizedClient(
+                        oauthToken.getAuthorizedClientRegistrationId(),
+                        oauthToken.getName()
+                );
+
+        String providerAccessToken = client.getAccessToken().getTokenValue();
+
 
         switch (registrationId) {
 
@@ -89,7 +101,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // ✅ 로그인 처리
         SocialLoginResponse loginResponse =
-                authService.socialLogin(email, name, provider, providerUserId);
+                authService.socialLogin(email, name, provider, providerUserId, providerAccessToken );
 
         String accessToken = loginResponse.getAccessToken();
         boolean isNew = loginResponse.isNew();

@@ -27,7 +27,10 @@ public interface AuthMapper {
     void insertSocialAccount(
             @Param("userId") Long userId,
             @Param("provider") String provider,
-            @Param("providerUserId") String providerUserId
+            @Param("providerUserId") String providerUserId,
+            @Param("providerAccessToken") String  providerAccessToken
     );
     boolean existsByUserId(Long userId);
+    SocialUnlinkDto findSocialByUserId(Long userId);
+    void reactivateUser(Long userId);
 }

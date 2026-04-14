@@ -87,6 +87,7 @@
         <result property="role" column="ROLE"/>
         <result property="profileFileId" column="PROFILE_FILE_ID"/>
         <result property="provider" column="PROVIDER"/>
+        <result property="status" column = "STATUS"/>
 
         <collection property="languages" ofType="TechStackResponse">
             <result property="dtlCdId" column="DTL_CD_ID"/>
@@ -104,6 +105,7 @@
             u.ROLE,
             u.PASSWORD_HASH,
             u.PROFILE_FILE_ID,
+            u.STATUS,
             ccd.DTL_CD_ID,
             ccd.DTL_CD_NM,
             sa.PROVIDER
@@ -156,13 +158,15 @@
             USER_ID,
             PROVIDER,
             PROVIDER_USER_ID,
-            REG_DT
+            REG_DT,
+            PROVIDER_ACCESS_TOKEN
         ) VALUES (
                      SOCIAL_SEQ.NEXTVAL,
                      #{userId},
                      #{provider},
                      #{providerUserId},
-                     SYSDATE
+                     SYSDATE,
+                     #{providerAccessToken}
                  )
     </insert>
 
@@ -174,4 +178,18 @@
         FROM SOCIAL_ACCOUNTS
         WHERE USER_ID = #{userId}
     </select>
+
+    <select id="findSocialByUserId" resultType="SocialUnlinkDto">
+        SELECT
+            PROVIDER,
+            PROVIDER_ACCESS_TOKEN
+        FROM SOCIAL_ACCOUNTS
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <update id="reactivateUser">
+        UPDATE USERS
+        SET STATUS = 'ACTIVE'
+        WHERE USER_ID = #{userId}
+    </update>
 </mapper>
