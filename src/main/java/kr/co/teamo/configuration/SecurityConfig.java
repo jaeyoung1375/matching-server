@@ -37,7 +37,8 @@ public class SecurityConfig {
                                 restAuthenticationEntryPoint,
                                 request -> !request.getRequestURI().startsWith("/oauth2")
                                         && !request.getRequestURI().startsWith("/login")
-                        ))
+                        )
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll()
