@@ -32,13 +32,6 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .exceptionHandling(eh -> eh
-                        .defaultAuthenticationEntryPointFor(
-                                restAuthenticationEntryPoint,
-                                request -> !request.getRequestURI().startsWith("/oauth2")
-                                        && !request.getRequestURI().startsWith("/login")
-                        )
-                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll()
