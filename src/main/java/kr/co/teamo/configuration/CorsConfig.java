@@ -2,28 +2,36 @@ package kr.co.teamo.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")               // 모든 URL에 대해
-		                .allowedOrigins(
-		                        "http://localhost:3000",
-		                        "http://168.107.63.120:3000"
-		                )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메서드
-                        .allowedHeaders("*")             // 모든 헤더 허용
-                        .allowCredentials(true)       // 인증정보 포함 여부 (쿠키 등), false면 allowedOrigins에 * 가능
-                        .maxAge(3600);                   // preflight 요청 캐시 시간 (초)
-            }
-        };
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://168.107.63.120:3000"
+        ));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        config.setAllowedHeaders(List.of("*"));
+
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 }
