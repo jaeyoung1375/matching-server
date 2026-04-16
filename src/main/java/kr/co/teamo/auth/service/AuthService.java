@@ -2,6 +2,7 @@ package kr.co.teamo.auth.service;
 
 import kr.co.teamo.auth.dto.*;
 import kr.co.teamo.auth.mapper.AuthMapper;
+import kr.co.teamo.auth.util.AesEncryptor;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -29,6 +31,7 @@ public class AuthService {
     private final JwtTokenUtil jwtTokenUtil;
     private final RefreshTokenRedisService refreshTokenRedisService;
     private final RedisTemplate<Object, Object> redisTemplate;
+    private final AesEncryptor aesEncryptor;
 
     // 회원가입
     @Transactional
@@ -153,8 +156,18 @@ public class AuthService {
             SocialUnlinkDto account = authMapper.findSocialByUserId(userId);
 
             String provider = account.getProvider();
-            String token = account.getProviderAccessToken();
-            unlink(provider,token);
+            String encryptedToken = account.getProviderAccessToken();
+
+            // 만료 체크
+            if (account.getExpiresAt().isBefore(LocalDateTime.now())) {
+                throw new CustomException(UserErrorCode.SOCIAL_TOKEN_EXPIRED);
+            }
+
+            // 복호화
+            String token = aesEncryptor.decrypt(encryptedToken);
+
+            // unlink
+            unlink(provider, token);
         }
 
         // 탈퇴 처리
@@ -231,7 +244,7 @@ public class AuthService {
     // 마이페이지 수정
     @Transactional
     public void updateMe(Long userId, UpdateUserRequest request){
-        // 🔥 1. 소셜 로그인 여부 체크
+        // 1. 소셜 로그인 여부 체크
         boolean isSocialUser = authMapper.existsByUserId(userId);
 
         if (isSocialUser && request.getPasswordHash() != null && !request.getPasswordHash().isBlank()) {
@@ -280,6 +293,14 @@ public class AuthService {
             if ("DEACTIVATE".equals(user.getStatus())) {
                 authMapper.reactivateUser(userId);
             }
+
+            String encryptedToken = aesEncryptor.encrypt(providerAccessToken);
+
+            authMapper.updateSocialAccessToken(
+                    userId,
+                    encryptedToken,
+                    LocalDateTime.now().plusHours(1)
+            );
         } else {
             LoginDto user = authMapper.findByEmail(email);
 
@@ -305,11 +326,13 @@ public class AuthService {
                 authMapper.insertUser(dto);
                 userId = dto.getUserId();
 
+                String encryptedToken = aesEncryptor.encrypt(providerAccessToken);
+
                 authMapper.insertSocialAccount(
                         userId,
                         provider,
                         providerUserId,
-                        providerAccessToken
+                        encryptedToken
                 );
 
                 isNew = true;

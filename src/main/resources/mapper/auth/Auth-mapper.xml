@@ -159,14 +159,16 @@
             PROVIDER,
             PROVIDER_USER_ID,
             REG_DT,
-            PROVIDER_ACCESS_TOKEN
+            PROVIDER_ACCESS_TOKEN,
+            EXPIRES_AT
         ) VALUES (
                      SOCIAL_SEQ.NEXTVAL,
                      #{userId},
                      #{provider},
                      #{providerUserId},
                      SYSDATE,
-                     #{providerAccessToken}
+                     #{providerAccessToken},
+                     SYSDATE + 1/24
                  )
     </insert>
 
@@ -182,7 +184,8 @@
     <select id="findSocialByUserId" resultType="SocialUnlinkDto">
         SELECT
             PROVIDER,
-            PROVIDER_ACCESS_TOKEN
+            PROVIDER_ACCESS_TOKEN,
+            EXPIRES_AT
         FROM SOCIAL_ACCOUNTS
         WHERE USER_ID = #{userId}
     </select>
@@ -190,6 +193,13 @@
     <update id="reactivateUser">
         UPDATE USERS
         SET STATUS = 'ACTIVE'
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <update id="updateSocialAccessToken">
+        UPDATE SOCIAL_ACCOUNTS
+        SET PROVIDER_ACCESS_TOKEN = #{accessToken},
+            EXPIRES_AT = #{expiresAt}
         WHERE USER_ID = #{userId}
     </update>
 </mapper>

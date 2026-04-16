@@ -4,6 +4,7 @@ import kr.co.teamo.auth.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -33,4 +34,9 @@ public interface AuthMapper {
     boolean existsByUserId(Long userId);
     SocialUnlinkDto findSocialByUserId(Long userId);
     void reactivateUser(Long userId);
+    void updateSocialAccessToken(
+            @Param("userId") Long userId,
+            @Param("accessToken") String accessToken,
+            @Param("expiresAt") LocalDateTime expiresAt
+    );
 }

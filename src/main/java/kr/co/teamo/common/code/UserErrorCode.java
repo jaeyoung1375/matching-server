@@ -28,7 +28,9 @@ public enum UserErrorCode implements ResponseCode {
     /** 정지된 회원입니다. */
     USER_BLOCKED("U0008", HttpStatus.FORBIDDEN, "정지된 회원입니다."),
     /** 소셜 로그인 사용자는 비밀번호 변경 불가 */
-    SOCIAL_PW_BLOCKED("U0009", HttpStatus.FORBIDDEN, "소셜 로그인 사용자는 비밀번호 변경 불가입니다.");
+    SOCIAL_PW_BLOCKED("U0009", HttpStatus.FORBIDDEN, "소셜 로그인 사용자는 비밀번호 변경 불가입니다."),
+    /** 소셜 토큰 만료 -> 재로그인 필요 */
+    SOCIAL_TOKEN_EXPIRED("U0010", HttpStatus.FORBIDDEN, "소셜 토큰 만료 → 재로그인 필요");
 
 
 	/** 코드 */
