@@ -28,3 +28,6 @@ file:
   upload:
     path: /opt/app/upload
     server: /upload
+
+app:
+  frontend-url: http://168.107.63.120:3000

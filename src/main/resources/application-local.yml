@@ -28,4 +28,6 @@ file:
   upload:
     path: D:/upload	   
     server: /upload
+app:
+  frontend-url: http://localhost:3000
     
