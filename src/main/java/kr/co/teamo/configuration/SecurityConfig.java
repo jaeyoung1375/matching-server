@@ -32,8 +32,13 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
             .anyRequest().permitAll()
+        )
+        .oauth2Login(oauth -> oauth
+                .userInfoEndpoint(user -> user
+                        .userService(customOAuth2UserService)
+                )
+                .successHandler(oAuth2SuccessHandler)
         );
-
 
         return http.build();
     }
