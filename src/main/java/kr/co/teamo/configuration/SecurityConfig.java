@@ -29,33 +29,11 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenUtil);
 
         http
-                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(eh -> eh.authenticationEntryPoint(restAuthenticationEntryPoint))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/v1/public/**").permitAll()
-                        .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(
-                                "/oauth2/**",
-                                "/login/oauth2/**",
-                                "/login/**"
-                        ).permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(user -> user
-                                .userService(customOAuth2UserService)
-                        )
-                        .successHandler(oAuth2SuccessHandler)
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll()
+        );
+
 
         return http.build();
     }
