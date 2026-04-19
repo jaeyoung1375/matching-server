@@ -12,6 +12,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestCustomizers;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -22,24 +26,41 @@ public class SecurityConfig {
     private final JwtTokenUtil jwtTokenUtil;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final CorsConfig corsConfig;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtTokenUtil jwtTokenUtil, CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
-
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenUtil);
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll()
-        )
-        .oauth2Login(oauth -> oauth
-                .userInfoEndpoint(user -> user
-                        .userService(customOAuth2UserService)
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            )
+            .oauth2Login(oauth -> oauth
+                .authorizationEndpoint(auth -> auth
+                    .authorizationRequestResolver(
+                        authorizationRequestResolver(clientRegistrationRepository)
+                    )
                 )
-                .successHandler(oAuth2SuccessHandler)
-        );
+            );
 
         return http.build();
+    }
+
+    @Bean
+    public OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository repo) {
+
+        DefaultOAuth2AuthorizationRequestResolver resolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        repo, "/oauth2/authorization");
+
+        resolver.setAuthorizationRequestCustomizer(customizer -> {
+            customizer.additionalParameters(params -> {
+                params.remove("code_challenge");
+                params.remove("code_challenge_method");
+            });
+        });
+
+        return resolver;
     }
 }
