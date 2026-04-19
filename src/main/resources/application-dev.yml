@@ -19,6 +19,7 @@ decorator:
 logging:
   level:
     p6spy: INFO
+    org.springframework.security: DEBUG
   file:
     path: /home/ubuntu
     name: app.log
