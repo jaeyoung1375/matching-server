@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.teamo.auth.dto.SocialLoginResponse;
 import kr.co.teamo.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -22,6 +23,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
     private final OAuth2AuthorizedClientService authorizedClientService;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -108,7 +112,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // ✅ 프론트로 리다이렉트
         response.sendRedirect(
-                "http://localhost:3000/?token=" + accessToken + "&isNew=" + isNew
+                frontendUrl + "/?token=" + accessToken + "&isNew=" + isNew
         );
     }
 }
