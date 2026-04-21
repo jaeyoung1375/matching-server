@@ -12,6 +12,7 @@ import kr.co.teamo.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Auth", description = "회원 관련 API")
 @RestController
@@ -65,6 +66,20 @@ public class AuthController {
             return bearer.substring(7);
         }
         return null;
+    }
+
+    // 파일 업로드 API
+    @PostMapping("/profile-image")
+    public ApiResponse<Void> uploadProfileImage(
+            @RequestParam MultipartFile file
+    ) {
+        Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
+
+        Long fileId = authService.upload(file);
+
+        authService.updateProfileImage(userId, fileId);
+
+        return ApiResponse.ok();
     }
 
 }

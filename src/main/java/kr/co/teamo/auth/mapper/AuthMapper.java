@@ -1,6 +1,7 @@
 package kr.co.teamo.auth.mapper;
 
 import kr.co.teamo.auth.dto.*;
+import kr.co.teamo.common.file.dto.FileDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -40,4 +41,11 @@ public interface AuthMapper {
             @Param("accessToken") String accessToken,
             @Param("expiresAt") LocalDateTime expiresAt
     );
+    void updateProfileImage(
+            @Param("userId") Long userId,
+            @Param("fileId") Long fileId
+    );
+    void insert(FileDto dto);
+    Long findProfileFileId(@Param("userId") Long userId);
+    void softDeleteFile(@Param("fileId") Long fileId);
 }

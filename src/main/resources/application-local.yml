@@ -30,7 +30,7 @@ logging:
 
 file:
   upload:
-    path: D:/upload	   
+    path: C:/upload
     server: /upload
 app:
   frontend-url: http://localhost:3000

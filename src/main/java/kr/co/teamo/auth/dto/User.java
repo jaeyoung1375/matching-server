@@ -20,5 +20,9 @@ public class User {
     private String provider;
     private String passwordHash;
     private String status;
+    private Long profileFileId;
+    private Long memberId;
+    private String filePath;
+    private String saveFileNm;
     private List<TechStackResponse> languages = new ArrayList<>();
 }

@@ -6,9 +6,10 @@ import kr.co.teamo.auth.util.AesEncryptor;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
-import lombok.Builder;
+import kr.co.teamo.common.file.dto.FileDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,15 +17,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Builder
 public class AuthService {
 
     private final AuthMapper authMapper;
@@ -33,6 +40,8 @@ public class AuthService {
     private final RefreshTokenRedisService refreshTokenRedisService;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final AesEncryptor aesEncryptor;
+    @Value("${file.upload.path}")
+    private String uploadPath;
 
     // 회원가입
     @Transactional
@@ -223,6 +232,12 @@ public class AuthService {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }
 
+        if (user.getFilePath() != null && user.getSaveFileNm() != null) {
+            user.setProfileImageUrl(
+                    user.getFilePath() + "/" + user.getSaveFileNm()
+            );
+        }
+
         return user;
     }
 
@@ -362,5 +377,69 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .isNew(isNew)
                 .build();
+    }
+
+    private String getExt(MultipartFile file) {
+        String name = file.getOriginalFilename();
+
+        if (name == null || !name.contains(".")) {
+            return "";
+        }
+
+        return name.substring(name.lastIndexOf(".") + 1);
+    }
+
+    public Long upload(MultipartFile file) {
+
+        String savedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        LocalDate now = LocalDate.now();
+        String datePath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+
+        String baseDir = Paths.get(uploadPath, "profile").toString();
+        String fullPath = Paths.get(baseDir, datePath).toString();
+
+        File dir = new File(fullPath);
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created) {
+                throw new RuntimeException("디렉토리 생성 실패: " + fullPath);
+            }
+        }
+
+        try {
+            File dest = new File(fullPath + "/" + savedName);
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 실패", e);
+        }
+
+        FileDto dto = new FileDto();
+        dto.setOrgFileNm(file.getOriginalFilename());
+        dto.setSaveFileNm(savedName);
+
+        dto.setFilePath("/upload/profile/" + datePath);
+
+        dto.setFileSize(file.getSize());
+        dto.setFileExt(getExt(file));
+
+        authMapper.insert(dto);
+
+        return dto.getFileId();
+    }
+
+    @Transactional
+    public void updateProfileImage(Long userId, Long fileId) {
+
+        // 1. 기존 프로필 이미지 조회
+        Long oldFileId = authMapper.findProfileFileId(userId);
+
+        // 2. USERS 업데이트
+        authMapper.updateProfileImage(userId, fileId);
+
+        // 3. 기존 파일 처리 (soft delete)
+        if (oldFileId != null && !oldFileId.equals(fileId)) {
+            authMapper.softDeleteFile(oldFileId);
+        }
     }
 }
