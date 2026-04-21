@@ -2,6 +2,7 @@ package kr.co.teamo.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import kr.co.teamo.auth.dto.UpdateUserRequest;
 import kr.co.teamo.auth.dto.User;
 import kr.co.teamo.auth.dto.WithdrawRequest;
@@ -39,9 +40,12 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", description = "로그아웃 API")
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(){
+    public ApiResponse<Void> logout(HttpServletRequest request){
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
-        authService.logout(userId);
+
+        String accessToken = resolveToken(request);
+
+        authService.logout(userId, accessToken);
         return ApiResponse.ok();
     }
 
@@ -51,6 +55,16 @@ public class AuthController {
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
         authService.updateMe(userId,updateUserRequest);
         return ApiResponse.ok();
+    }
+
+    // 토큰 추출 메서드
+    private String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
     }
 
 }

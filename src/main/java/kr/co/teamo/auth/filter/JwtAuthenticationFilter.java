@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
+    private final RedisTemplate<Object, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -34,6 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = resolveBearerToken(request);
+
+        if (redisTemplate.hasKey("blacklist:" + token)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
         if (StringUtils.hasText(token) && jwtTokenUtil.validateToken(token)) {
             Long userId = jwtTokenUtil.getUserId(token);

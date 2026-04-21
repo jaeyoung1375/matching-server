@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -85,5 +86,21 @@ public class JwtTokenUtil {
         if (principal instanceof String) return Long.parseLong((String) principal);
 
         throw new IllegalStateException("인증 principal 형식이 올바르지 않습니다.");
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public long getRemainingTime(String token) {
+        Claims claims = parseClaims(token);
+
+        long remaining = claims.getExpiration().getTime() - System.currentTimeMillis();
+
+        return Math.max(remaining, 0);
     }
 }

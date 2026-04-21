@@ -8,6 +8,7 @@ import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,10 +34,10 @@ public class SecurityConfig {
             HttpSecurity http,
             CustomOAuth2UserService customOAuth2UserService,
             OAuth2SuccessHandler oAuth2SuccessHandler,
-            ClientRegistrationRepository clientRegistrationRepository
-    ) throws Exception {
+            ClientRegistrationRepository clientRegistrationRepository,
+            RedisTemplate<Object, Object> redisTemplate) throws Exception {
 
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenUtil);
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenUtil,redisTemplate);
 
         http
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -226,9 +227,19 @@ public class AuthService {
     }
 
     // 로그아웃
-    public void logout(Long userId) {
+    public void logout(Long userId, String accessToken) {
 
-        redisTemplate.delete("refresh:" + userId);
+        // 1. refresh token 삭제 (서비스 통해서)
+        refreshTokenRedisService.delete(userId);
+
+        // 2. access token 블랙리스트 등록
+        long expiration = jwtTokenUtil.getRemainingTime(accessToken);
+
+        redisTemplate.opsForValue().set(
+                "blacklist:" + accessToken,
+                "logout",
+                Duration.ofMillis(expiration)
+        );
     }
 
     // 이메일 중복 체크
@@ -311,7 +322,8 @@ public class AuthService {
                         userId,
                         provider,
                         providerUserId,
-                        providerAccessToken
+                        providerAccessToken,
+                        LocalDateTime.now().plusHours(1)
                 );
 
             } else {
@@ -332,7 +344,8 @@ public class AuthService {
                         userId,
                         provider,
                         providerUserId,
-                        encryptedToken
+                        encryptedToken,
+                        LocalDateTime.now().plusHours(1)
                 );
 
                 isNew = true;

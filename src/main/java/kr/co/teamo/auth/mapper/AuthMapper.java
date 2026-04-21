@@ -29,7 +29,8 @@ public interface AuthMapper {
             @Param("userId") Long userId,
             @Param("provider") String provider,
             @Param("providerUserId") String providerUserId,
-            @Param("providerAccessToken") String  providerAccessToken
+            @Param("providerAccessToken") String  providerAccessToken,
+            @Param("expiresAt") LocalDateTime expiresAt
     );
     boolean existsByUserId(Long userId);
     SocialUnlinkDto findSocialByUserId(Long userId);
