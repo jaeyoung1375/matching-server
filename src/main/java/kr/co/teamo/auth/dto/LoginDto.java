@@ -11,4 +11,5 @@ public class LoginDto {
     private Long userId;
     private String email;
     private String passwordHash;
+    private String status;
 }

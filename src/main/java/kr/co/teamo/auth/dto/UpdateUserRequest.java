@@ -9,6 +9,6 @@ import java.util.List;
 @Setter
 public class UpdateUserRequest {
     private String name;
-    private String passwordHash;
+    private String password;
     private List<String> dtlCdIds;
 }

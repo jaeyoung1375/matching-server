@@ -13,4 +13,6 @@ public class SignupResponse {
     private Long userId;
     private String email;
     private String message;
+    private String accessToken;
+    private String refreshToken;
 }
