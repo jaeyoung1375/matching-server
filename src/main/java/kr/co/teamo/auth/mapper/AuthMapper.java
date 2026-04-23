@@ -20,7 +20,7 @@ public interface AuthMapper {
     int existsEmail(String Email);
     User findById(Long userId);
     List<TechStackResponse> findAll();
-    void updateUser(@Param("userId") Long userId, @Param("name") String name, @Param("passwordHash") String passwordHash);
+    void updateUser(@Param("userId") Long userId, @Param("name") String name, @Param("password") String password);
     void deleteUserLanguage(Long userId);
     SocialAccount findSocialAccount(
             @Param("provider") String provider,
@@ -33,7 +33,6 @@ public interface AuthMapper {
             @Param("providerAccessToken") String  providerAccessToken,
             @Param("expiresAt") LocalDateTime expiresAt
     );
-    boolean existsByUserId(Long userId);
     SocialUnlinkDto findSocialByUserId(Long userId);
     void reactivateUser(Long userId);
     void updateSocialAccessToken(

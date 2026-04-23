@@ -60,9 +60,11 @@
         SELECT
             USER_ID,
             EMAIL,
-            PASSWORD_HASH
+            PASSWORD_HASH,
+            STATUS
         FROM USERS
-        WHERE email = #{email}
+        WHERE EMAIL = #{email}
+        AND STATUS = 'ACTIVE'
     </select>
 
     <update id="withdrawUser" parameterType="long">
@@ -90,6 +92,7 @@
         <result property="status" column = "STATUS"/>
         <result property="filePath" column="FILE_PATH"/>
         <result property="saveFileNm" column="SAVE_FILE_NM"/>
+        <result property="passwordHash" column="PASSWORD_HASH"/>
 
         <collection property="languages" ofType="TechStackResponse">
             <result property="dtlCdId" column="DTL_CD_ID"/>
@@ -123,6 +126,7 @@
                  LEFT JOIN CMM_FILE cf
                            ON cf.FILE_ID = u.PROFILE_FILE_ID
         WHERE u.USER_ID = #{userId}
+        AND u.STATUS = 'ACTIVE'
     </select>
 
     <select id="findAll" resultType="TechStackResponse">
@@ -138,12 +142,13 @@
         UPDATE USERS
         <set>
             NAME = #{name},
-            <if test="passwordHash !=null">
-                PASSWORD_HASH = #{passwordHash},
+            <if test="password !=null">
+                PASSWORD_HASH = #{password},
             </if>
             MOD_DT = SYSDATE
         </set>
         WHERE USER_ID = #{userId}
+        AND STATUS = 'ACTIVE'
     </update>
 
     <delete id="deleteUserLanguage">
@@ -237,12 +242,14 @@
         SELECT PROFILE_FILE_ID
         FROM USERS
         WHERE USER_ID = #{userId}
+        AND STATUS = 'ACTIVE'
     </select>
 
     <update id="updateProfileImage">
         UPDATE USERS
         SET PROFILE_FILE_ID = #{fileId}
         WHERE USER_ID = #{userId}
+        AND STATUS = 'ACTIVE'
     </update>
 
     <update id="softDeleteFile">

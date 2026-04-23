@@ -71,10 +71,17 @@ public class AuthService {
             }
         }
 
+        String accessToken = jwtTokenUtil.createAccessToken(userId);
+        String refreshToken = jwtTokenUtil.createRefreshToken(userId);
+
+        refreshTokenRedisService.save(userId, refreshToken);
+
         return SignupResponse.builder()
                 .userId(userId)
                 .email(email)
-                .message("회원가입 완료")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .message("회원가입 및 로그인 완료")
                 .build();
     }
 
@@ -84,6 +91,10 @@ public class AuthService {
         LoginDto user = authMapper.findByEmail(req.getEmail());
 
         if (user == null) {
+            throw new CustomException(UserErrorCode.INVALID_INFO);
+        }
+
+        if (!"ACTIVE".equals(user.getStatus())) {
             throw new CustomException(UserErrorCode.INVALID_INFO);
         }
 
@@ -144,40 +155,37 @@ public class AuthService {
 
         User user = authMapper.findById(userId);
 
-    // 일반 로그인만 비밀번호 검증
-        if (!user.getProvider().equals("GOOGLE") &&
-            !user.getProvider().equals("KAKAO") &&
-            !user.getProvider().equals("GITHUB")) {
+        String provider = user.getProvider() == null ? "LOCAL" : user.getProvider();
 
-            if (currentPassword == null || currentPassword.isEmpty()) {
+        boolean isSocial = !"LOCAL".equals(provider);
+        // 일반 로그인
+        if(!isSocial) {
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
                 throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
             }
 
-            if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            if (!passwordEncoder.matches(currentPassword.trim(), user.getPasswordHash())) {
                 throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
             }
         }
 
-        // 소셜이면 UNLINK 먼저
-        if(user.getProvider().equals("GOOGLE") ||
-            user.getProvider().equals("KAKAO") ||
-            user.getProvider().equals("GITHUB")) {
-
+        // 소셜 로그인
+        if(isSocial) {
             SocialUnlinkDto account = authMapper.findSocialByUserId(userId);
 
-            String provider = account.getProvider();
-            String encryptedToken = account.getProviderAccessToken();
+            if(account == null) {
+                throw new CustomException(UserErrorCode.SOCIAL_ACCOUNT_NOT_FOUND);
+            }
 
-            // 만료 체크
             if (account.getExpiresAt().isBefore(LocalDateTime.now())) {
                 throw new CustomException(UserErrorCode.SOCIAL_TOKEN_EXPIRED);
             }
 
-            // 복호화
-            String token = aesEncryptor.decrypt(encryptedToken);
+            //복호화
+            String token = aesEncryptor.decrypt(account.getProviderAccessToken());
 
-            // unlink
-            unlink(provider, token);
+            //unlink
+            unlink(account.getProvider(),token);
         }
 
         // 탈퇴 처리
@@ -270,26 +278,29 @@ public class AuthService {
     // 마이페이지 수정
     @Transactional
     public void updateMe(Long userId, UpdateUserRequest request){
-        // 1. 소셜 로그인 여부 체크
-        boolean isSocialUser = authMapper.existsByUserId(userId);
+        User user = authMapper.findById(userId);
 
-        if (isSocialUser && request.getPasswordHash() != null && !request.getPasswordHash().isBlank()) {
+        String provider = user.getProvider() == null ? "LOCAL" : user.getProvider();
+        boolean isSocialUser = !"LOCAL".equals(provider);
+
+        // 소셜 유저 비밀번호 변경 차단
+        if (isSocialUser && request.getPassword() != null && !request.getPassword().isBlank()) {
             throw new CustomException(UserErrorCode.SOCIAL_PW_BLOCKED);
         }
 
-        // 2. 비밀번호 인코딩
+        // 비밀번호 인코딩
         String encodedPassword = null;
-        if(request.getPasswordHash() != null && !request.getPasswordHash().isBlank()){
-            encodedPassword = passwordEncoder.encode(request.getPasswordHash());
+        if(request.getPassword() != null && !request.getPassword().isBlank()){
+            encodedPassword = passwordEncoder.encode(request.getPassword());
         }
 
-        // 3. 유저 정보 수정
+        // 유저 정보 수정
         authMapper.updateUser(userId, request.getName(), encodedPassword);
 
-        // 4. 기술스택 초기화
+        // 기술스택 초기화
         authMapper.deleteUserLanguage(userId);
 
-        // 5. 기술스택 재등록
+        // 기술스택 재등록
         if(request.getDtlCdIds() != null){
             for(String dtlCdId : request.getDtlCdIds()){
                 authMapper.insertUserLanguage(userId, dtlCdId);
