@@ -23,7 +23,9 @@ public class CodeRequestDto {
 	private String dtlCdId;
 
 	@Schema(description = "공통코드아이디 리스트")
-	private List<CodeRequestDto> comCdIds;
+	private List<String> comCdIds;
+
+	private String dtlCdExpln;
 
 
 

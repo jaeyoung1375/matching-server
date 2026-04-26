@@ -25,11 +25,18 @@ public class CodeController {
 
 	private final CodeService codeService;
 
-	@Operation(summary = "공통코드조회", description = "공통코드를 조회한다")
+	@Operation(summary = "공통코드 다건 조회", description = "공통코드 다건을 조회한다")
 	@GetMapping("/public/codes")
-	public ApiResponse<Map<String, List<CodeResponseDto>>> getCodeList(@RequestParam(name = "comCdIds")  List<String> comCdIds) {
+	public ApiResponse<Map<String, List<CodeResponseDto>>> getCodeList(@ModelAttribute CodeRequestDto dto) {
 
-		return ApiResponse.ok(codeService.getCodeList(comCdIds));
+		return ApiResponse.ok(codeService.getCodeList(dto));
+	}
+
+	@Operation(summary = "공통코드 단건 조회", description = "공통코드 단건을 조회한다")
+	@GetMapping("/public/code")
+	public ApiResponse<List<CodeResponseDto>> getCode(@ModelAttribute CodeRequestDto dto) {
+
+		return ApiResponse.ok(codeService.getCode(dto));
 	}
 
 

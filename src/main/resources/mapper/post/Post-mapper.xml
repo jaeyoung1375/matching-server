@@ -47,10 +47,10 @@
 		AND (A.TITLE LIKE #{keyword} || '%' OR A.CONTENT LIKE #{keyword} || '%')
 		</if>
 		<if test="techStackTypeCd != null and techStackTypeCd.size() > 0">
-		AND (
-			<foreach item="item" collection="techStackTypeCd" separator="OR">
+		AND
+			<foreach item="item" collection="techStackTypeCd" open="(" close=")" separator="AND ">
 			',' ||  B.TECH_STACK || ','
-			LIKE '%,' || #{item} || ',%')
+			LIKE '%,' || #{item} || ',%'
 			</foreach>
 		</if>
 		<if test="recruitPositTypeCd != '' and recruitPositTypeCd != null">

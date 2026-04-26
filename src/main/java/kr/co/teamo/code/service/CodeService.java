@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+
+import kr.co.teamo.code.dto.CodeRequestDto;
 import kr.co.teamo.code.dto.CodeResponseDto;
 import kr.co.teamo.code.mapper.CodeMapper;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +18,32 @@ public class CodeService {
 
 	private final CodeMapper codeMapper;
 
-	public Map<String,List<CodeResponseDto>> getCodeList(List<String> comCdIds){
+	/**
+	 * 코드 다건 조회
+	 * @param comCdIds
+	 * @return
+	 */
+	public Map<String,List<CodeResponseDto>> getCodeList(CodeRequestDto dto){
 
-		List<CodeResponseDto> codes = codeMapper.getCodeList(comCdIds);
+		List<CodeResponseDto> codes = codeMapper.getCodeList(dto);
 
 		 return codes.stream()
 				 .collect(Collectors.groupingBy(CodeResponseDto::getComCdId));
+	}
+
+	/**
+	 * 코드 단건 조회
+	 * @param comCdIds
+	 * @return
+	 */
+	public List<CodeResponseDto> getCode(CodeRequestDto dto){
+
+		List<CodeResponseDto> codes = codeMapper.getCodeList(dto);
+
+		return codes;
+
+
+
 	}
 
 }

@@ -11,6 +11,12 @@ import kr.co.teamo.code.dto.CodeResponseDto;
 @Mapper
 public interface CodeMapper {
 
-	List<CodeResponseDto> getCodeList(@Param("comCdIds") List<String> comCdIds);
+	/**
+	 * 코드 다건 조회
+	 * @param comCdIds
+	 * @return
+	 */
+	List<CodeResponseDto> getCodeList(CodeRequestDto dto);
+
 
 }
