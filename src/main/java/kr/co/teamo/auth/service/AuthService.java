@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -161,11 +162,11 @@ public class AuthService {
         // 일반 로그인
         if(!isSocial) {
             if (currentPassword == null || currentPassword.trim().isEmpty()) {
-                throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
+                throw new CustomException(UserErrorCode.INVALID_PASSWORD);
             }
 
             if (!passwordEncoder.matches(currentPassword.trim(), user.getPasswordHash())) {
-                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+                throw new CustomException(UserErrorCode.INVALID_PASSWORD);
             }
         }
 
@@ -252,17 +253,29 @@ public class AuthService {
     // 로그아웃
     public void logout(Long userId, String accessToken) {
 
-        // 1. refresh token 삭제 (서비스 통해서)
+        if (!StringUtils.hasText(accessToken)) {
+            log.warn("로그아웃 시도 중 토큰이 비어있습니다. userId: {}", userId);
+            return;
+        }
+
+        // refresh token 삭제 (서비스 통해서)
         refreshTokenRedisService.delete(userId);
 
-        // 2. access token 블랙리스트 등록
-        long expiration = jwtTokenUtil.getRemainingTime(accessToken);
+        try {
+            long expiration = jwtTokenUtil.getRemainingTime(accessToken);
 
-        redisTemplate.opsForValue().set(
-                "blacklist:" + accessToken,
-                "logout",
-                Duration.ofMillis(expiration)
-        );
+            // 만료 시간이 이미 지났거나 아주 짧은 경우를 대비해 0보다 클 때만 등록
+            if (expiration > 0) {
+                redisTemplate.opsForValue().set(
+                        "blacklist:" + accessToken,
+                        "logout",
+                        Duration.ofMillis(expiration)
+                );
+                log.info("AccessToken 블랙리스트 등록 완료. userId: {}, 남은시간: {}ms", userId, expiration);
+            }
+        } catch (Exception e) {
+            log.error("로그아웃 처리 중 오류 발생: {}", e.getMessage());
+        }
     }
 
     // 이메일 중복 체크
@@ -344,11 +357,13 @@ public class AuthService {
             if (user != null) {
                 userId = user.getUserId();
 
+                String encryptedAccessToken = aesEncryptor.encrypt(providerAccessToken);
+
                 authMapper.insertSocialAccount(
                         userId,
                         provider,
                         providerUserId,
-                        providerAccessToken,
+                        encryptedAccessToken,
                         LocalDateTime.now().plusHours(1)
                 );
 

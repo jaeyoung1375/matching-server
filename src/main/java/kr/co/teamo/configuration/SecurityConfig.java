@@ -3,7 +3,6 @@ package kr.co.teamo.configuration;
 import kr.co.teamo.auth.filter.JwtAuthenticationFilter;
 import kr.co.teamo.auth.handler.OAuth2SuccessHandler;
 import kr.co.teamo.auth.security.RestAuthenticationEntryPoint;
-import kr.co.teamo.auth.service.CustomOAuth2UserService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +31,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity http,
-            CustomOAuth2UserService customOAuth2UserService,
             OAuth2SuccessHandler oAuth2SuccessHandler,
             ClientRegistrationRepository clientRegistrationRepository,
             RedisTemplate<Object, Object> redisTemplate) throws Exception {
@@ -66,9 +64,6 @@ public class SecurityConfig {
                                 .authorizationRequestResolver(
                                         authorizationRequestResolver(clientRegistrationRepository)
                                 )
-                        )
-                        .userInfoEndpoint(user -> user
-                                .userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2SuccessHandler)
                 )

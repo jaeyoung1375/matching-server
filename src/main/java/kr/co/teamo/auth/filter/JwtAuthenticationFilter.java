@@ -30,26 +30,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
 
+        // 화이트리스트(로그인, oauth2) 경로는 바로 통과
         if (uri.startsWith("/oauth2") || uri.startsWith("/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // 토큰 추출
         String token = resolveBearerToken(request);
 
-        if (redisTemplate.hasKey("blacklist:" + token)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
+        // 토큰이 있는 경우에만 로직 수행
+        if (StringUtils.hasText(token)) {
 
-        if (StringUtils.hasText(token) && jwtTokenUtil.validateToken(token)) {
-            Long userId = jwtTokenUtil.getUserId(token);
+            // 블랙리스트 확인 (토큰이 존재할 때만 수행)
+            if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token))) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
 
-            var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
-            var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 토큰 유효성 검증 및 인증 처리
+            if (jwtTokenUtil.validateToken(token)) {
+                Long userId = jwtTokenUtil.getUserId(token);
+                var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+                var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);

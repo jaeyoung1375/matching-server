@@ -16,9 +16,9 @@ public enum UserErrorCode implements ResponseCode {
 	/** 비밀번호가 올바르지 않습니다. */
 	INVALID_PASSWORD("U0002", HttpStatus.UNAUTHORIZED, "비밀번호가 올바르지 않습니다."),
 	/** 유효하지 않은 refresh token 입니다. */
-	INVALID_REFRESH_TOKEN("U0003", HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 refresh token 입니다."),
+	INVALID_REFRESH_TOKEN("U0003", HttpStatus.UNAUTHORIZED, "유효하지 않은 refresh token 입니다."),
 	/** 로그아웃된 토큰입니다. */
-	INVALID_LOGOUT_TOKEN("U0004", HttpStatus.INTERNAL_SERVER_ERROR, "로그아웃된 토큰입니다."),
+	INVALID_LOGOUT_TOKEN("U0004", HttpStatus.UNAUTHORIZED, "로그아웃된 토큰입니다."),
     /** 사용자를 찾을 수 없습니다. */
     USER_NOT_FOUND("U0005", HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     /** 이미 사용중인 이메일입니다. */
