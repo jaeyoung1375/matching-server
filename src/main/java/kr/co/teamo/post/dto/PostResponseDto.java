@@ -1,6 +1,8 @@
 
 package kr.co.teamo.post.dto;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,10 +43,10 @@ public class PostResponseDto {
 	private String progressPeriod;
 
 	@Schema(description = "모집포지션구분코드")
-	private String recruitPositTypeCd;
+	private List<String> recruitPositTypeCd;
 
 	@Schema(description = "모집포지션구분코드명")
-	private String recruitPositTypeNm;
+	private List<String> recruitPositTypeNm;
 
 	@Schema(description = "모집구분코드명")
 	private String recruitTypeCd;
@@ -53,10 +55,13 @@ public class PostResponseDto {
 	private String recruitTypeNm;
 
 	@Schema(description = "기술스택")
-	private String techStack;
+	private List<String> techStackCd;
 
 	@Schema(description = "모집마감일")
 	private String recruitEndDate;
+
+	@Schema(description = "모집인원")
+	private String recruitCnt;
 
 	@Schema(description = "사용여부")
 	private String useYn;
@@ -69,4 +74,9 @@ public class PostResponseDto {
 
 	@Schema(description = "수정일시")
 	private String modDt;
+
+
+	/** USERS 테이블 조인 **/
+	@Schema(description = "사용자명")
+	private String name;
 }
