@@ -12,7 +12,7 @@
 	</resultMap>
 
 
-     <!-- 전체 메뉴 조회-->
+     <!-- 게시판 목록 조회-->
     <select id="selectAllPosts" resultMap="postResultMap" parameterType="PostRequestDto">
 
      SELECT
@@ -26,7 +26,6 @@
 			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
 			  , p.VIEW_CNT
 			  , p.RECRUIT_END_DATE
-			  , p.RECRUIT_CNT
 		FROM POST p
 		LEFT JOIN USERS u
 		ON P.USER_ID  = U.USER_ID
@@ -75,6 +74,48 @@
 	 -->
  	ORDER BY P.REG_DT DESC
     </select>
+
+	<!-- 게시판 상세 조회 -->
+    <select id="findByPostId" resultMap="postResultMap" parameterType="PostRequestDto">
+
+     SELECT
+				p.POST_ID
+			  , p.TITLE
+			  , U.NAME
+			  , p.STATUS
+			  , p.RECRUIT_CNT
+			  , ts.TECH_STACK_CD
+			  , rs.RECRUIT_POSIT_TYPE_NM
+			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
+			  , p.VIEW_CNT
+			  , p.RECRUIT_END_DATE
+		FROM POST p
+		LEFT JOIN USERS u
+		ON P.USER_ID  = U.USER_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , LISTAGG(pts.TECH_STACK_CD, ', ') WITHIN GROUP (ORDER BY pts.TECH_STACK_CD DESC) AS TECH_STACK_CD
+				   FROM POST_TECH_STACK pts
+				   GROUP BY POST_ID
+		)ts
+		ON p.POST_ID = ts.POST_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , LISTAGG(
+				 (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE
+		CMM_CODE_DTL.COM_CD_ID = 'RECRUIT_POSIT_TYPE_CD'
+		AND CMM_CODE_DTL.DTL_CD_ID = prp.RECRUIT_POSIT_TYPE_CD), ', ') WITHIN GROUP (ORDER BY prp.RECRUIT_POSIT_TYPE_CD DESC) AS RECRUIT_POSIT_TYPE_NM
+				   FROM POST_RECRUIT_POSITION prp
+				   GROUP BY POST_ID
+		)RS
+		ON p.POST_ID = RS.POST_ID
+		<where>
+			p.POST_ID = #{postId}
+		</where>
+    </select>
+
 
 
     <insert id="createPost" parameterType="PostRequestDto">

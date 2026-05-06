@@ -6,15 +6,19 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.PageHelper;
+
 import kr.co.teamo.common.code.FileErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.file.dto.FileDto;
 import kr.co.teamo.common.file.service.FileService;
+import kr.co.teamo.common.util.PageResponseDto;
 import kr.co.teamo.post.dto.PostFileDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
 import kr.co.teamo.post.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +33,22 @@ public class PostService {
 	 * @param PostRequestDto
 	 * @return List<PostResponseDto>
 	 */
-	public List<PostResponseDto> selectAllPosts(PostRequestDto req){
+	public PageResponseDto<PostResponseDto> selectAllPosts(PostRequestDto req){
 
-		return postMapper.selectAllPosts(req);
+		PageHelper.startPage(req.getPageNum(),12);
+		List<PostResponseDto> list = postMapper.selectAllPosts(req);
+
+		return PageResponseDto.of(list);
+	}
+
+	/**
+	 * 게시판 상세 조회
+	 * @param PostRequestDto
+	 * @return PostResponseDto
+	 */
+	public PostResponseDto findByPostId(PostRequestDto req) {
+
+		return postMapper.findByPostId(req);
 	}
 
 	/**

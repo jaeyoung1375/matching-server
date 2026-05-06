@@ -17,6 +17,11 @@ mybatis:
   type-aliases-package: kr.co.teamo
   configuration:
     map-underscore-to-camel-case: true
+pagehelper:
+  helper-dialect: oracle
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
 
 jwt:
   secret: "your-very-very-long-and-random-secret-key-at-least-32-bytes"

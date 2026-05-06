@@ -51,6 +51,7 @@ dependencies {
     implementation "com.fasterxml:classmate:1.7.3"
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'com.github.pagehelper:pagehelper-spring-boot-starter:1.4.6'
 }
 
 tasks.named('test') {

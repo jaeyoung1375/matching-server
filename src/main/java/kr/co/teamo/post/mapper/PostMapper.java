@@ -20,6 +20,13 @@ public interface PostMapper {
 	List<PostResponseDto> selectAllPosts(PostRequestDto req);
 
 	/**
+	 * 게시판 상세 조회
+	 * @param PostRequestDto
+	 * @return PostResponseDto
+	 */
+	PostResponseDto findByPostId(PostRequestDto req);
+
+	/**
 	 * 게시물 등록
 	 * @param PostRequestDto
 	 *

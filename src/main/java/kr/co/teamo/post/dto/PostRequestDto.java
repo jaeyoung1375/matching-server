@@ -7,6 +7,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -68,6 +69,10 @@ public class PostRequestDto {
 
 	@Schema(description = "검색어")
 	private String keyword;
+
+	@Schema(description = "현재 페이지")
+	@Builder.Default
+	private int pageNum = 1;
 
 
 
