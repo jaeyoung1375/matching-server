@@ -27,6 +27,9 @@ decorator:
 logging:
   level:
     p6spy: INFO
+    kr.co.teamo: DEBUG                               # 서비스/매퍼 레벨 로그 활성화
+    org.springframework.security: DEBUG              # Security 필터 흐름 전체 출력
+    org.springframework.web.servlet.mvc: DEBUG       # MVC 경로 매핑 확인용
 
 file:
   upload:

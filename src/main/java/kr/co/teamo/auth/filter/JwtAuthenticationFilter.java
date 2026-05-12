@@ -28,10 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String uri = request.getRequestURI();
+        String uri    = request.getRequestURI();
+        String method = request.getMethod();
 
-        // 화이트리스트(로그인, oauth2) 경로는 바로 통과
+        log.debug("[JWT Filter] 요청 진입 → {} {}", method, uri);
+
+        // 화이트리스트(소셜 로그인, oauth2) 경로는 바로 통과
         if (uri.startsWith("/oauth2") || uri.startsWith("/login")) {
+            log.debug("[JWT Filter] 화이트리스트 경로 — 필터 통과: {}", uri);
             filterChain.doFilter(request, response);
             return;
         }
@@ -41,9 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 있는 경우에만 로직 수행
         if (StringUtils.hasText(token)) {
+            log.debug("[JWT Filter] 토큰 존재 — 블랙리스트 및 유효성 검사 진행");
 
             // 블랙리스트 확인 (토큰이 존재할 때만 수행)
             if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token))) {
+                log.warn("[JWT Filter] 블랙리스트 토큰 차단: {}", uri);
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
@@ -54,7 +60,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
                 var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("[JWT Filter] 인증 완료 — userId: {}", userId);
+            } else {
+                log.warn("[JWT Filter] 유효하지 않은 토큰 — 인증 없이 진행: {}", uri);
             }
+        } else {
+            log.debug("[JWT Filter] 토큰 없음 — 비인증 요청 통과: {}", uri);
         }
 
         filterChain.doFilter(request, response);
