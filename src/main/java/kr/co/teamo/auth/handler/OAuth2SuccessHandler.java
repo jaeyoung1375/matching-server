@@ -107,12 +107,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         SocialLoginResponse loginResponse =
                 authService.socialLogin(email, name, provider, providerUserId, providerAccessToken );
 
-        String accessToken = loginResponse.getAccessToken();
-        boolean isNew = loginResponse.isNew();
+        String accessToken  = loginResponse.getAccessToken();
+        String refreshToken = loginResponse.getRefreshToken();
+        boolean isNew       = loginResponse.isNew();
 
-        // ✅ 프론트로 리다이렉트
+        // ✅ 프론트로 리다이렉트 (refreshToken 포함)
         response.sendRedirect(
-                frontendUrl + "/?token=" + accessToken + "&isNew=" + isNew
+                frontendUrl + "/?token=" + accessToken
+                        + "&refreshToken=" + refreshToken
+                        + "&isNew=" + isNew
         );
     }
 }

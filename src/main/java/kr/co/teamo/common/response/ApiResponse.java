@@ -49,4 +49,13 @@ public class ApiResponse<T> {
         );
     }
 
+    /** 검증 오류처럼 코드는 고정이지만 메시지를 동적으로 넘겨야 할 때 사용 */
+    public static ApiResponse<Void> error(ResponseCode code, String message) {
+        return new ApiResponse<>(
+                code.getCode(),
+                message,
+                null
+        );
+    }
+
 }
