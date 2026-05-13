@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.teamo.comment.mapper.CommentMapper">
+
+    <resultMap id="commentResultMap" type="CommentResponseDto" autoMapping="true">
+        <id     property="commentId" column="COMMENT_ID" />
+        <result property="owner"     column="IS_OWNER"   javaType="java.lang.Boolean" />
+    </resultMap>
+
+    <select id="selectCommentsByPostId" resultMap="commentResultMap">
+        SELECT
+            c.COMMENT_ID,
+            c.POST_ID,
+            c.USER_ID,
+            u.NAME                                               AS USER_NAME,
+            CASE
+                WHEN cf.FILE_PATH IS NOT NULL
+                 AND cf.SAVE_FILE_NM IS NOT NULL
+                THEN cf.FILE_PATH || '/' || cf.SAVE_FILE_NM
+            END                                                  AS PROFILE_IMAGE_URL,
+            c.CONTENT,
+            c.PARENT_ID,
+            c.USE_YN,
+            TO_CHAR(c.REG_DT, 'YYYY-MM-DD"T"HH24:MI:SS')       AS REG_DT,
+            TO_CHAR(c.MOD_DT, 'YYYY-MM-DD"T"HH24:MI:SS')       AS MOD_DT,
+            CASE WHEN c.USER_ID = #{userId, jdbcType=NUMERIC}
+                 THEN 1 ELSE 0
+            END                                                  AS IS_OWNER
+        FROM "COMMENT" c
+        LEFT JOIN USERS u
+            ON u.USER_ID = c.USER_ID
+        LEFT JOIN CMM_FILE cf
+            ON cf.FILE_ID = u.PROFILE_FILE_ID
+           AND (cf.DEL_YN IS NULL OR cf.DEL_YN = 'N')
+        WHERE c.POST_ID = #{postId}
+          AND c.USE_YN  = 'Y'
+        ORDER BY
+            NVL(c.PARENT_ID, c.COMMENT_ID) ASC,
+            c.COMMENT_ID ASC
+    </select>
+
+    <insert id="insertComment" parameterType="CommentInsertDto">
+        <selectKey keyProperty="commentId" resultType="long" order="BEFORE">
+            SELECT SEQ_COMMENT_ID.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO "COMMENT" (
+            COMMENT_ID,
+            POST_ID,
+            USER_ID,
+            CONTENT,
+            PARENT_ID,
+            USE_YN,
+            REG_DT
+        ) VALUES (
+            #{commentId},
+            #{postId},
+            #{userId},
+            #{content},
+            #{parentId, jdbcType=NUMERIC},
+            'Y',
+            SYSDATE
+        )
+    </insert>
+
+    <update id="softDeleteComment">
+        UPDATE "COMMENT"
+        SET    USE_YN = 'N',
+               MOD_DT = SYSDATE
+        WHERE  COMMENT_ID = #{commentId}
+          AND  USER_ID    = #{userId}
+          AND  USE_YN     = 'Y'
+    </update>
+
+</mapper>
