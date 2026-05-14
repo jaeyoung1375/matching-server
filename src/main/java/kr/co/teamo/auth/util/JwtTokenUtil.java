@@ -1,6 +1,7 @@
 package kr.co.teamo.auth.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -32,24 +33,29 @@ public class JwtTokenUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(Long userId) {
-        return createToken(userId, accessExpMs);
+    public String createAccessToken(Long userId, String role) {
+        return createToken(userId, role, accessExpMs);
     }
 
     public String createRefreshToken(Long userId) {
-        return createToken(userId, refreshExpMs);
+        return createToken(userId, null, refreshExpMs);
     }
 
-    private String createToken(Long userId, long ttlMs) {
+    private String createToken(Long userId, String role, long ttlMs) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + ttlMs);
 
-        return Jwts.builder()
-                .setSubject(String.valueOf(userId)) // subject = userId
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(now)
                 .setExpiration(exp)
-                .signWith(key(), SignatureAlgorithm.HS256)
-                .compact();
+                .signWith(key(), SignatureAlgorithm.HS256);
+
+        if (role != null) {
+            builder.claim("role", role); // access token 에만 role 클레임 추가
+        }
+
+        return builder.compact();
     }
 
     public boolean validateToken(String token) {
@@ -102,5 +108,15 @@ public class JwtTokenUtil {
         long remaining = claims.getExpiration().getTime() - System.currentTimeMillis();
 
         return Math.max(remaining, 0);
+    }
+
+    public String getRole(String token){
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("role", String.class);
+
     }
 }

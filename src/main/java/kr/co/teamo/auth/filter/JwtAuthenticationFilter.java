@@ -57,10 +57,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰 유효성 검증 및 인증 처리
             if (jwtTokenUtil.validateToken(token)) {
                 Long userId = jwtTokenUtil.getUserId(token);
-                var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+                String role = jwtTokenUtil.getRole(token);
+                String authority = "ROLE_" + role;
+                var authorities = List.of(new SimpleGrantedAuthority(authority));
                 var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("[JWT Filter] 인증 완료 — userId: {}", userId);
+                log.debug("[JWT Filter] 인증 완료 — userId: {}, role: {}, authority: {}", userId, role, authority);
             } else {
                 log.warn("[JWT Filter] 유효하지 않은 토큰 — 인증 없이 진행: {}", uri);
             }
