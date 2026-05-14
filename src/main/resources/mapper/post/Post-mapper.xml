@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.teamo.post.mapper.PostMapper">
+
+	<!-- ResultMap에 typeHandler 지정 -->
+	<resultMap id="postResultMap" type="PostResponseDto" autoMapping="true">
+	    <result property="techStackCd"        column="TECH_STACK_CD"        typeHandler="StringListTypeHandler"/>
+	    <result property="recruitPositTypeNm" column="RECRUIT_POSIT_TYPE_NM" typeHandler="StringListTypeHandler"/>
+	</resultMap>
+
+
+     <!-- 게시판 목록 조회-->
+    <select id="selectAllPosts" resultMap="postResultMap" parameterType="PostRequestDto">
+
+     SELECT
+				p.POST_ID
+			  , p.TITLE
+			  , U.NAME
+			  , p.STATUS
+			  , p.RECRUIT_CNT
+			  , ts.TECH_STACK_CD
+			  , rs.RECRUIT_POSIT_TYPE_NM
+			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
+			  , p.VIEW_CNT
+			  , p.RECRUIT_END_DATE
+		FROM POST p
+		LEFT JOIN USERS u
+		ON P.USER_ID  = U.USER_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , LISTAGG(pts.TECH_STACK_CD, ', ') WITHIN GROUP (ORDER BY pts.TECH_STACK_CD DESC) AS TECH_STACK_CD
+				   FROM POST_TECH_STACK pts
+				   GROUP BY POST_ID
+		)ts
+		ON p.POST_ID = ts.POST_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , LISTAGG(
+				 (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE
+		CMM_CODE_DTL.COM_CD_ID = 'RECRUIT_POSIT_TYPE_CD'
+		AND CMM_CODE_DTL.DTL_CD_ID = prp.RECRUIT_POSIT_TYPE_CD), ', ') WITHIN GROUP (ORDER BY prp.RECRUIT_POSIT_TYPE_CD DESC) AS RECRUIT_POSIT_TYPE_NM
+				   FROM POST_RECRUIT_POSITION prp
+				   GROUP BY POST_ID
+		)RS
+		ON p.POST_ID = RS.POST_ID
+		<!--
+	<where>
+		<if test="keyword != '' and keyword != null">
+		AND (A.TITLE LIKE #{keyword} || '%' OR A.CONTENT LIKE #{keyword} || '%')
+		</if>
+		<if test="techStackTypeCd != null and techStackTypeCd.size() > 0">
+		AND
+			<foreach item="item" collection="techStackTypeCd" open="(" close=")" separator="AND ">
+			',' ||  B.TECH_STACK || ','
+			LIKE '%,' || #{item} || ',%'
+			</foreach>
+		</if>
+		<if test="recruitPositTypeCd != '' and recruitPositTypeCd != null">
+		AND
+			<foreach item="item" collection="recruitPositTypeCd" open="(" close=")" separator="AND ">
+			',' ||  B.TECH_STACK || ','
+			LIKE '%,' || #{item} || ',%'
+			</foreach>
+		</if>
+		<if test="progressTypeCd != '' and progressTypeCd != null">
+		AND PROGRESS_TYPE_CD = #{progressTypeCd}
+		</if>
+	</where>
+	 -->
+ 	ORDER BY P.REG_DT DESC
+    </select>
+
+	<!-- 게시판 상세 조회 -->
+    <select id="findByPostId" resultMap="postResultMap" parameterType="PostRequestDto">
+
+     SELECT
+				p.POST_ID
+			  , p.TITLE
+			  , U.NAME
+			  , p.STATUS
+			  , p.RECRUIT_CNT
+			  , ts.TECH_STACK_CD
+			  , rs.RECRUIT_POSIT_TYPE_NM
+			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
+			  , p.VIEW_CNT
+			  , p.RECRUIT_END_DATE
+		FROM POST p
+		LEFT JOIN USERS u
+		ON P.USER_ID  = U.USER_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , LISTAGG(pts.TECH_STACK_CD, ', ') WITHIN GROUP (ORDER BY pts.TECH_STACK_CD DESC) AS TECH_STACK_CD
+				   FROM POST_TECH_STACK pts
+				   GROUP BY POST_ID
+		)ts
+		ON p.POST_ID = ts.POST_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , LISTAGG(
+				 (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE
+		CMM_CODE_DTL.COM_CD_ID = 'RECRUIT_POSIT_TYPE_CD'
+		AND CMM_CODE_DTL.DTL_CD_ID = prp.RECRUIT_POSIT_TYPE_CD), ', ') WITHIN GROUP (ORDER BY prp.RECRUIT_POSIT_TYPE_CD DESC) AS RECRUIT_POSIT_TYPE_NM
+				   FROM POST_RECRUIT_POSITION prp
+				   GROUP BY POST_ID
+		)RS
+		ON p.POST_ID = RS.POST_ID
+		<where>
+			p.POST_ID = #{postId}
+		</where>
+    </select>
+
+
+
+    <insert id="createPost" parameterType="PostRequestDto">
+    <selectKey keyProperty="postId" resultType="long" order="BEFORE">
+   	 SELECT POST_SEQ.NEXTVAL FROM DUAL
+	</selectKey>
+
+	    INSERT INTO POST(
+				POST_ID					/* 게시판 아이디 */
+			  , USER_ID					/* 사용자 아이디 */
+			  , TITLE					/* 제목 */
+			  , CONTENT					/* 내용 */
+			  , RECRUIT_TYPE_CD			/* 모집구분코드 */
+			  , RECRUIT_CNT				/* 모집인원 */
+			  , PROGRESS_TYPE_CD		/* 진행방식구분코드 */
+			  , PROGRESS_PERIOD			/* 진행기간 */
+			  , RECRUIT_END_DATE		/* 모집마감일 */
+			  , RECRUIT_POSIT_TYPE_CD	/* 모집포지션구분코드 */
+			  , CONTACT_METHOD_CD		/* 연락방법구분코드 */
+			  , STATUS					/* 상태 */
+			  , VIEW_CNT				/* 조회수 */
+			  , REG_DT					/* 등록일 */
+		)VALUES(
+			    #{postId}				/* 게시판 아이디 */
+			  , #{userId}				/* 사용자 아이디 */
+			  , #{title}				/* 제목 */
+			  , #{content}				/* 내용 */
+			  , #{recruitTypeCd}		/* 모집구분코드 */
+			  , #{recruitCnt}			/* 모집인원 */
+			  , #{progressTypeCd}		/* 진행방식구분코드 */
+			  , #{progressPeriod}		/* 진행기간 */
+			  , #{recruitEndDate}		/* 모집마감일 */
+			  , #{recruitPositTypeCd}	/* 모집포지션구분코드 */
+			  , #{contactMethodCd}		/* 연락방법구분코드 */
+			  , 'ACTIVE'				/* 상태 */
+			  , '0'						/* 조회수 */
+			  , SYSDATE					/* 등록일 */
+		)
+    </insert>
+
+
+	 <insert id="insertPostTechStack" parameterType="PostRequestDto">
+	    INSERT ALL
+	    <foreach collection="techStackTypeCd" item="tech">
+	        INTO POST_TECH_STACK(
+	            POST_ID,
+	            TECH_STACK_CD
+	        ) VALUES (
+	            #{postId},
+	            #{tech}
+	        )
+	    </foreach>
+	    SELECT 1 FROM DUAL
+	</insert>
+
+	<insert id="insertPostFiles" parameterType="java.util.List">
+	  INSERT INTO POST_FILE (
+	    POST_FILE_ID,
+	    POST_ID,
+	    FILE_ID,
+	    REG_DT
+	  )
+	  SELECT
+	    POST_FILE_SEQ.NEXTVAL,
+	    D1.POST_ID,
+	    D1.FILE_ID,
+	    SYSDATE
+	  FROM (
+	    <foreach collection="list" item="item" separator="UNION ALL">
+	      SELECT
+	        #{item.postId} AS POST_ID,
+	        #{item.fileId} AS FILE_ID
+	      FROM dual
+	    </foreach>
+	  ) D1
+	</insert>
+
+
+
+</mapper>
