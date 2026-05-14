@@ -61,7 +61,8 @@
             USER_ID,
             EMAIL,
             PASSWORD_HASH,
-            STATUS
+            STATUS,
+            ROLE
         FROM USERS
         WHERE EMAIL = #{email}
         AND STATUS = 'ACTIVE'

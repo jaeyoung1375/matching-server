@@ -72,7 +72,7 @@ public class AuthService {
             }
         }
 
-        String accessToken = jwtTokenUtil.createAccessToken(userId);
+        String accessToken = jwtTokenUtil.createAccessToken(userId,"USER");
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, refreshToken);
@@ -106,8 +106,11 @@ public class AuthService {
         }
 
         Long userId = user.getUserId();
+        String role = user.getRole();
 
-        String accessToken = jwtTokenUtil.createAccessToken(userId);
+        log.info("[login] userId={}, role={}", userId, role);
+
+        String accessToken = jwtTokenUtil.createAccessToken(userId,role);
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, refreshToken);
@@ -139,7 +142,9 @@ public class AuthService {
             throw new CustomException(UserErrorCode.INVALID_LOGOUT_TOKEN);
         }
 
-        String newAccessToken = jwtTokenUtil.createAccessToken(userId);
+        User userInfo = authMapper.findById(userId);
+
+        String newAccessToken = jwtTokenUtil.createAccessToken(userId,userInfo.getRole());
         String newRefreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, newRefreshToken);
@@ -393,7 +398,9 @@ public class AuthService {
             }
         }
 
-        String accessToken = jwtTokenUtil.createAccessToken(userId);
+        User userInfo = authMapper.findById(userId);
+
+        String accessToken = jwtTokenUtil.createAccessToken(userId,userInfo.getRole());
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, refreshToken);
