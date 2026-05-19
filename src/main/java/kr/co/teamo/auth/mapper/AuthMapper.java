@@ -47,4 +47,5 @@ public interface AuthMapper {
     void insert(FileDto dto);
     Long findProfileFileId(@Param("userId") Long userId);
     void softDeleteFile(@Param("fileId") Long fileId);
+    void updateLastLoginDt(Long userId);
 }

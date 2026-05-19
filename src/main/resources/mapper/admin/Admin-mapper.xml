@@ -4,7 +4,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.teamo.admin.mapper.AdminMapper">
-    <select id="selectUserCount">
+    <select id="selectUserCount" resultType="kr.co.teamo.admin.dashboard.dto.UserCountDto">
         SELECT
             COUNT(*) AS TOTAL_COUNT,
             COUNT(CASE WHEN U.STATUS = 'ACTIVE' THEN 1 END) AS ACTIVE_COUNT,
@@ -12,5 +12,46 @@
         FROM USERS U
     </select>
 
+    <select id="selectNewUserCount" resultType="kr.co.teamo.admin.dashboard.dto.NewUserCountDto">
+        <![CDATA[
+        SELECT COUNT(*) AS NEW_USER_COUNT
+        FROM USERS
+        WHERE REG_DT >= TRUNC(SYSDATE, 'MM')
+          AND REG_DT < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+        ]]>
+    </select>
 
+    <select id="selectPostCount" resultType="kr.co.teamo.admin.dashboard.dto.PostCountDto">
+        SELECT COUNT(POST_ID) AS POST_COUNT
+        FROM POST
+        WHERE USE_YN = 'Y'
+    </select>
+
+    <select id="searchUsers" resultType="kr.co.teamo.admin.user.dto.AdminUserDto">
+        SELECT
+        u.USER_ID,
+        u.NAME,
+        u.EMAIL,
+        (
+        SELECT LISTAGG(sa.PROVIDER, ', ') WITHIN GROUP (ORDER BY sa.PROVIDER)
+        FROM SOCIAL_ACCOUNTS sa
+        WHERE sa.USER_ID = u.USER_ID
+        ) AS PROVIDER,
+        u.ROLE,
+        u.STATUS,
+        u.REG_DT,
+        u.LAST_LOGIN_DT,
+        cf.FILE_PATH
+        FROM USERS u
+        LEFT JOIN CMM_FILE cf ON u.PROFILE_FILE_ID = cf.FILE_ID
+        <where>
+            <if test="name != null and name != ''">
+                AND u.NAME LIKE '%' || #{name} || '%'
+            </if>
+            <if test="email != null and email != ''">
+                AND u.EMAIL LIKE '%' || #{email} || '%'
+            </if>
+        </where>
+        ORDER BY u.USER_ID
+    </select>
 </mapper>

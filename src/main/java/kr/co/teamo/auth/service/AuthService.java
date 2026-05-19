@@ -110,6 +110,8 @@ public class AuthService {
 
         log.info("[login] userId={}, role={}", userId, role);
 
+        authMapper.updateLastLoginDt(userId);
+
         String accessToken = jwtTokenUtil.createAccessToken(userId,role);
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
@@ -399,6 +401,8 @@ public class AuthService {
         }
 
         User userInfo = authMapper.findById(userId);
+
+        authMapper.updateLastLoginDt(userId);
 
         String accessToken = jwtTokenUtil.createAccessToken(userId,userInfo.getRole());
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);

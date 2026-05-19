@@ -1,4 +1,4 @@
-package kr.co.teamo.admin.dto;
+package kr.co.teamo.admin.dashboard.dto;
 
 import lombok.*;
 
