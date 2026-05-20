@@ -21,7 +21,7 @@ public class CorsConfig {
                 "http://168.107.63.120:3000"
         ));
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         config.setAllowedHeaders(List.of("*"));
 

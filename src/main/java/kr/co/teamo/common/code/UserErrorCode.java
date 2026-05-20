@@ -32,7 +32,9 @@ public enum UserErrorCode implements ResponseCode {
     /** 소셜 토큰 만료 -> 재로그인 필요 */
     SOCIAL_TOKEN_EXPIRED("U0010", HttpStatus.FORBIDDEN, "소셜 토큰 만료 → 재로그인 필요"),
     /** 연동된 소셜 계정 정보 없음 **/
-    SOCIAL_ACCOUNT_NOT_FOUND("U0011", HttpStatus.NOT_FOUND, "연동된 소셜 계정 정보가 없습니다.");
+    SOCIAL_ACCOUNT_NOT_FOUND("U0011", HttpStatus.NOT_FOUND, "연동된 소셜 계정 정보가 없습니다."),
+    /** 활성 상태인 회원만 수정 가능 **/
+    USER_NOT_ACTIVE("U0012", HttpStatus.BAD_REQUEST, "활성 상태인 회원만 수정할 수 있습니다.");
 
 
 	/** 코드 */

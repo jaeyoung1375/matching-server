@@ -2,16 +2,14 @@ package kr.co.teamo.admin.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.co.teamo.admin.dashboard.dto.UserCountDto;
+import jakarta.validation.Valid;
 import kr.co.teamo.admin.user.dto.AdminUserDto;
+import kr.co.teamo.admin.user.dto.UpdateUserRole;
 import kr.co.teamo.admin.user.service.AdminUserService;
 import kr.co.teamo.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,4 +30,21 @@ public class AdminUserController {
         return ApiResponse.ok(adminUserService.searchUsers(name,email));
     }
 
+    @Operation(summary = "회원 권한 변경", description = "회원 권한 변경 API")
+    @PatchMapping("/{userId}/role")
+    public ApiResponse<Void> updateUserRole(
+            @PathVariable Long userId, @RequestBody @Valid UpdateUserRole request
+    ){
+        adminUserService.updateUserRole(userId, request.getRole());
+        return ApiResponse.ok();
+    }
+
+    @Operation(summary = "강제로그아웃", description = "강제로그아웃 API")
+    @PostMapping("/{userId}/force-logout")
+    public ApiResponse<Void> forceLogout(
+            @PathVariable Long userId
+    ){
+        adminUserService.forceLogout(userId);
+        return ApiResponse.ok();
+    }
 }

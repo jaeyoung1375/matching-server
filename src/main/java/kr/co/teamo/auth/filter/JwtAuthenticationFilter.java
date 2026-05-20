@@ -57,6 +57,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰 유효성 검증 및 인증 처리
             if (jwtTokenUtil.validateToken(token)) {
                 Long userId = jwtTokenUtil.getUserId(token);
+
+                // 강제 로그아웃 여부 확인
+                if(Boolean.TRUE.equals(redisTemplate.hasKey("force-logout:" + userId))){
+                    log.warn("[JWT Filter] 강제 로그아웃 처리된 유저 차단 — userId: {}", userId);
+
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
+
                 String role = jwtTokenUtil.getRole(token);
                 String authority = "ROLE_" + role;
                 var authorities = List.of(new SimpleGrantedAuthority(authority));
