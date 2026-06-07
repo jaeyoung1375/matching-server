@@ -1,5 +1,7 @@
 package kr.co.teamo.post.controller;
 
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,6 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import kr.co.teamo.auth.util.JwtTokenUtil;
+import kr.co.teamo.common.code.UserErrorCode;
+import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.response.ApiResponse;
 import kr.co.teamo.common.util.PageResponseDto;
 import kr.co.teamo.post.dto.PostRequestDto;
@@ -21,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 public class PostController {
 
 	private final PostService postService;
+
+	private final JwtTokenUtil jwtTokenUtil;
 
 	@GetMapping("/public/posts")
 	public ApiResponse<PageResponseDto<PostResponseDto>> posts(@ModelAttribute @Valid PostRequestDto req){
@@ -40,10 +47,18 @@ public class PostController {
 	}
 
 	@PostMapping("/posts")
-	public ApiResponse<?> createPost(@RequestBody PostRequestDto req){
+	public ApiResponse<PostResponseDto> createPost(@RequestBody PostRequestDto req){
 
-		postService.createPost(req);
-		return ApiResponse.ok();
+		Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
+
+		//  사용자ID를 못가져오면 예외처리
+		if(ObjectUtils.isEmpty(userId)) {
+			throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+		}
+		req.setUserId(userId);
+
+
+		return ApiResponse.ok(postService.createPost(req));
 
 	}
 }

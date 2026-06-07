@@ -133,7 +133,6 @@
 			  , PROGRESS_TYPE_CD		/* 진행방식구분코드 */
 			  , PROGRESS_PERIOD			/* 진행기간 */
 			  , RECRUIT_END_DATE		/* 모집마감일 */
-			  , RECRUIT_POSIT_TYPE_CD	/* 모집포지션구분코드 */
 			  , CONTACT_METHOD_CD		/* 연락방법구분코드 */
 			  , STATUS					/* 상태 */
 			  , VIEW_CNT				/* 조회수 */
@@ -148,7 +147,6 @@
 			  , #{progressTypeCd}		/* 진행방식구분코드 */
 			  , #{progressPeriod}		/* 진행기간 */
 			  , #{recruitEndDate}		/* 모집마감일 */
-			  , #{recruitPositTypeCd}	/* 모집포지션구분코드 */
 			  , #{contactMethodCd}		/* 연락방법구분코드 */
 			  , 'ACTIVE'				/* 상태 */
 			  , '0'						/* 조회수 */
@@ -166,6 +164,21 @@
 	        ) VALUES (
 	            #{postId},
 	            #{tech}
+	        )
+	    </foreach>
+	    SELECT 1 FROM DUAL
+	</insert>
+
+
+	<insert id="insertPostRecruitPosit" parameterType="PostRequestDto">
+	    INSERT ALL
+	    <foreach collection="recruitPositTypeCd" item="posit">
+	        INTO POST_RECRUIT_POSITION(
+	            POST_ID,
+	            RECRUIT_POSIT_TYPE_CD
+	        ) VALUES (
+	            #{postId},
+	            #{posit}
 	        )
 	    </foreach>
 	    SELECT 1 FROM DUAL
