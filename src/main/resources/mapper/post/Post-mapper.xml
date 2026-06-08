@@ -81,14 +81,17 @@
      SELECT
 				p.POST_ID
 			  , p.TITLE
+			  , P.CONTENT
+			  , P.PROGRESS_PERIOD
 			  , U.NAME
 			  , p.STATUS
 			  , p.RECRUIT_CNT
+			  , p.RECRUIT_TARGET
 			  , ts.TECH_STACK_CD
 			  , rs.RECRUIT_POSIT_TYPE_NM
 			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
 			  , p.VIEW_CNT
-			  , p.RECRUIT_END_DATE
+			  , TO_CHAR(p.RECRUIT_END_DATE, 'YYYYMMDD') AS RECRUIT_END_DATE
 		FROM POST p
 		LEFT JOIN USERS u
 		ON P.USER_ID  = U.USER_ID
@@ -133,7 +136,7 @@
 			  , PROGRESS_TYPE_CD		/* 진행방식구분코드 */
 			  , PROGRESS_PERIOD			/* 진행기간 */
 			  , RECRUIT_END_DATE		/* 모집마감일 */
-			  , RECRUIT_POSIT_TYPE_CD	/* 모집포지션구분코드 */
+			  , RECRUIT_TARGET          /* 모집대상 */
 			  , CONTACT_METHOD_CD		/* 연락방법구분코드 */
 			  , STATUS					/* 상태 */
 			  , VIEW_CNT				/* 조회수 */
@@ -147,8 +150,8 @@
 			  , #{recruitCnt}			/* 모집인원 */
 			  , #{progressTypeCd}		/* 진행방식구분코드 */
 			  , #{progressPeriod}		/* 진행기간 */
-			  , #{recruitEndDate}		/* 모집마감일 */
-			  , #{recruitPositTypeCd}	/* 모집포지션구분코드 */
+			  , TO_CHAR(TO_DATE(#{recruitEndDate}, 'YYYYMMDD'), 'YYYYMMDD') /* 모집마감일 */
+			  , #{recruitTarget}		/* 모집대상 */
 			  , #{contactMethodCd}		/* 연락방법구분코드 */
 			  , 'ACTIVE'				/* 상태 */
 			  , '0'						/* 조회수 */
@@ -166,6 +169,21 @@
 	        ) VALUES (
 	            #{postId},
 	            #{tech}
+	        )
+	    </foreach>
+	    SELECT 1 FROM DUAL
+	</insert>
+
+
+	<insert id="insertPostRecruitPosit" parameterType="PostRequestDto">
+	    INSERT ALL
+	    <foreach collection="recruitPositTypeCd" item="posit">
+	        INTO POST_RECRUIT_POSITION(
+	            POST_ID,
+	            RECRUIT_POSIT_TYPE_CD
+	        ) VALUES (
+	            #{postId},
+	            #{posit}
 	        )
 	    </foreach>
 	    SELECT 1 FROM DUAL

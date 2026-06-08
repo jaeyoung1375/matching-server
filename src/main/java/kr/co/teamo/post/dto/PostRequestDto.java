@@ -56,10 +56,13 @@ public class PostRequestDto {
 	private List<String> techStackTypeCd;
 
 	@Schema(description = "모집마감일")
-	private Date recruitEndDate;
+	private String recruitEndDate;
 
 	@Schema(description = "모집포지션구분코드")
-	private String recruitPositTypeCd;
+	private List<String> recruitPositTypeCd;
+
+	@Schema(description = "모집대상")
+	private String recruitTarget;
 
 	@Schema(description = "연락방법구분코드")
 	private String contactMethodCd;

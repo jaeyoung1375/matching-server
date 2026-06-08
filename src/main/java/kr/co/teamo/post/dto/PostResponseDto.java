@@ -63,6 +63,9 @@ public class PostResponseDto {
 	@Schema(description = "모집인원")
 	private String recruitCnt;
 
+	@Schema(description = "모집대상")
+	private String recruitTarget;
+
 	@Schema(description = "사용여부")
 	private String useYn;
 

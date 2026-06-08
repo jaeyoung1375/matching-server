@@ -35,6 +35,8 @@ public interface PostMapper {
 
 	void insertPostTechStack(PostRequestDto req);
 
+	void insertPostRecruitPosit(PostRequestDto req);
+
 	void insertPostFiles(@Param("list") List<PostFileDto> postFileDto);
 
 }

@@ -56,7 +56,7 @@ public class PostService {
 	 * @param PostRequestDto
 	 */
 	@Transactional
-	public void createPost(PostRequestDto req) {
+	public PostResponseDto createPost(PostRequestDto req) {
 
 		// 1. POST 테이블 INSERT
 		postMapper.createPost(req);
@@ -64,26 +64,33 @@ public class PostService {
 		// 2. POST_TECH 테이블 INSERT
 		postMapper.insertPostTechStack(req);
 
-		// 3. TEMP_YN = N 업데이트
-		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());
-		fileService.confirmTempFiles(req.getTempKey());
-		// 4. 게시판 <-> 파일 연결
-
-		if(tempFiles.isEmpty()) {
-			throw new CustomException(FileErrorCode.FILE_EMPTY);
-		}
-
-
-		List<PostFileDto> postFiles = tempFiles.stream()
-				.map(f -> PostFileDto.builder()
-						.postId(req.getPostId())
-						.fileId(f.getFileId())
-						.build())
-				.toList();
-
-		postMapper.insertPostFiles(postFiles);
+		postMapper.insertPostRecruitPosit(req);
+//
+//		// 3. TEMP_YN = N 업데이트
+//		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());
+//		fileService.confirmTempFiles(req.getTempKey());
+//		// 4. 게시판 <-> 파일 연결
+//
+//		if(tempFiles.isEmpty()) {
+//			throw new CustomException(FileErrorCode.FILE_EMPTY);
+//		}
 
 
+//		List<PostFileDto> postFiles = tempFiles.stream()
+//				.map(f -> PostFileDto.builder()
+//						.postId(req.getPostId())
+//						.fileId(f.getFileId())
+//						.build())
+//				.toList();
+//
+//		postMapper.insertPostFiles(postFiles);
+
+		PostResponseDto response = PostResponseDto.builder()
+				.postId(req.getPostId())
+				.build();
+
+
+		return response;
 
 	}
 
