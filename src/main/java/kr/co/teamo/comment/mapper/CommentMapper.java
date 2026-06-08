@@ -21,4 +21,8 @@ public interface CommentMapper {
             @Param("commentId") Long commentId,
             @Param("userId") Long userId
     );
+
+    Long selectPostOwnerId(@Param("postId") Long postId);
+
+    Long selectCommentWriterId(@Param("commentId") Long commentId);
 }

@@ -6,6 +6,7 @@ import kr.co.teamo.comment.dto.CommentRequestDto;
 import kr.co.teamo.comment.dto.CommentResponseDto;
 import kr.co.teamo.comment.mapper.CommentMapper;
 import kr.co.teamo.common.exception.CustomException;
+import kr.co.teamo.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentMapper commentMapper;
+
+    private final NotificationService notificationService;
 
     /**
      * 게시글 댓글 목록 조회 (트리 구조로 변환하여 반환)
@@ -67,7 +71,25 @@ public class CommentService {
 
         commentMapper.insertComment(dto);
 
+        createCommentNotification(postId, userId, req.getParentId(), dto.getCommentId());
+
         log.info("[createComment] 등록 완료 — commentId={}", dto.getCommentId());
+    }
+
+    private void createCommentNotification(Long postId, Long writerId, Long parentId, Long commentId) {
+        Long postOwnerId = commentMapper.selectPostOwnerId(postId);
+
+        if (parentId == null) {
+            notificationService.createCommentOnMyPostNotification(postOwnerId, writerId, commentId);
+            return;
+        }
+
+        Long parentCommentWriterId = commentMapper.selectCommentWriterId(parentId);
+        notificationService.createReplyOnMyCommentNotification(parentCommentWriterId, writerId, commentId);
+
+        if (!Objects.equals(postOwnerId, parentCommentWriterId)) {
+            notificationService.createReplyOnMyPostNotification(postOwnerId, writerId, commentId);
+        }
     }
 
     /**

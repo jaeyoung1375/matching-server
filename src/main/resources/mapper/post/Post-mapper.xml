@@ -211,6 +211,12 @@
 	  ) D1
 	</insert>
 
+	<select id="countPostsByUserId" resultType="int">
+		SELECT COUNT(*)
+		FROM POST
+		WHERE USER_ID = #{userId}
+	</select>
+
 
 
 </mapper>

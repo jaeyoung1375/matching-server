@@ -13,6 +13,7 @@ import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.file.dto.FileDto;
 import kr.co.teamo.common.file.service.FileService;
 import kr.co.teamo.common.util.PageResponseDto;
+import kr.co.teamo.notification.service.NotificationService;
 import kr.co.teamo.post.dto.PostFileDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
@@ -27,6 +28,8 @@ public class PostService {
 	private final PostMapper postMapper;
 
 	private final FileService fileService;
+
+	private final NotificationService notificationService;
 
 	/**
 	 * 게시물 목록 조회
@@ -65,6 +68,10 @@ public class PostService {
 		postMapper.insertPostTechStack(req);
 
 		postMapper.insertPostRecruitPosit(req);
+
+		if (postMapper.countPostsByUserId(req.getUserId()) == 1) {
+			notificationService.createFirstPostNotification(req.getUserId(), req.getPostId());
+		}
 //
 //		// 3. TEMP_YN = N 업데이트
 //		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());

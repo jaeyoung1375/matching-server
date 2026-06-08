@@ -75,4 +75,17 @@
           AND  USE_YN     = 'Y'
     </update>
 
+    <select id="selectPostOwnerId" resultType="long">
+        SELECT USER_ID
+        FROM POST
+        WHERE POST_ID = #{postId}
+    </select>
+
+    <select id="selectCommentWriterId" resultType="long">
+        SELECT USER_ID
+        FROM "COMMENT"
+        WHERE COMMENT_ID = #{commentId}
+          AND USE_YN = 'Y'
+    </select>
+
 </mapper>

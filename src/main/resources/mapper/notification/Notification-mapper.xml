@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.teamo.notification.mapper.NotificationMapper">
+
+    <insert id="insertNotification" parameterType="NotificationCreateDto">
+        <selectKey keyProperty="notificationId" resultType="long" order="BEFORE">
+            SELECT SEQ_NOTIFICATION_ID.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO NOTIFICATION (
+        NOTIFICATION_ID,
+        USER_ID,
+        SENDER_ID,
+        TARGET_TYPE,
+        TARGET_ID,
+        NOTIFICATION_TYPE_CD,
+        TITLE,
+        CONTENT,
+        READ_YN,
+        REG_DT,
+        USE_YN
+        ) VALUES (
+        #{notificationId},
+        #{userId},
+        #{senderId, jdbcType=NUMERIC},
+        #{targetType},
+        #{targetId, jdbcType=NUMERIC},
+        #{notificationTypeCd},
+        #{title},
+        #{content},
+        'N',
+        SYSDATE,
+        'Y'
+        )
+    </insert>
+
+    <select id="selectNotifications" resultType="NotificationResponseDto">
+        SELECT
+            n.NOTIFICATION_ID,
+            n.USER_ID,
+            n.SENDER_ID,
+            u.NAME AS SENDER_NAME,
+            n.TARGET_TYPE,
+            targetCd.DTL_CD_NM AS TARGET_TYPE_NM,
+            n.TARGET_ID,
+            n.NOTIFICATION_TYPE_CD,
+            typeCd.DTL_CD_NM AS NOTIFICATION_TYPE_NM,
+            n.TITLE,
+            n.CONTENT,
+            n.READ_YN,
+            TO_CHAR(n.REG_DT, 'YYYY-MM-DD"T"HH24:MI:SS') AS REG_DT,
+            TO_CHAR(n.READ_DT, 'YYYY-MM-DD"T"HH24:MI:SS') AS READ_DT
+        FROM NOTIFICATION n
+                 LEFT JOIN USERS u
+                           ON u.USER_ID = n.SENDER_ID
+                 LEFT JOIN CMM_CODE_DTL typeCd
+                           ON typeCd.COM_CD_ID = 'NOTIFICATION_TYPE'
+                               AND typeCd.DTL_CD_ID = n.NOTIFICATION_TYPE_CD
+                 LEFT JOIN CMM_CODE_DTL targetCd
+                           ON targetCd.COM_CD_ID = 'TARGET_TYPE'
+                               AND targetCd.DTL_CD_ID = n.TARGET_TYPE
+        WHERE n.USER_ID = #{userId}
+          AND n.USE_YN = 'Y'
+          AND n.REG_DT >= SYSDATE - 7
+        ORDER BY n.REG_DT DESC
+    </select>
+
+    <select id="countUnreadNotifications" resultType="int">
+        SELECT COUNT(*)
+        FROM NOTIFICATION
+        WHERE USER_ID = #{userId}
+          AND READ_YN = 'N'
+          AND REG_DT >= SYSDATE - 7
+          AND USE_YN = 'Y'
+    </select>
+
+    <update id="markAsRead">
+        UPDATE NOTIFICATION
+        SET READ_YN = 'Y',
+            READ_DT = SYSDATE
+        WHERE NOTIFICATION_ID = #{notificationId}
+          AND USER_ID = #{userId}
+          AND READ_YN = 'N'
+          AND USE_YN = 'Y'
+    </update>
+
+    <update id="markAllAsRead">
+        UPDATE NOTIFICATION
+        SET READ_YN = 'Y',
+            READ_DT = SYSDATE
+        WHERE USER_ID = #{userId}
+          AND READ_YN = 'N'
+          AND USE_YN = 'Y'
+    </update>
+
+</mapper>

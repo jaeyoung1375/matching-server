@@ -7,6 +7,7 @@ import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.file.dto.FileDto;
+import kr.co.teamo.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,7 @@ public class AuthService {
     private final RefreshTokenRedisService refreshTokenRedisService;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final AesEncryptor aesEncryptor;
+    private final NotificationService notificationService;
     @Value("${file.upload.path}")
     private String uploadPath;
 
@@ -65,6 +67,8 @@ public class AuthService {
         authMapper.insertUser(dto);
 
         Long userId = dto.getUserId();
+
+        notificationService.createWelcomeNotification(userId);
 
         if (req.getDtlCdIds() != null) {
             for (String dtlCdId : req.getDtlCdIds()) {
@@ -385,6 +389,8 @@ public class AuthService {
 
                 authMapper.insertUser(dto);
                 userId = dto.getUserId();
+
+                notificationService.createWelcomeNotification(userId);
 
                 String encryptedToken = aesEncryptor.encrypt(providerAccessToken);
 
