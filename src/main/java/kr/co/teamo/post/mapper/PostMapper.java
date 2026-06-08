@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import kr.co.teamo.post.dto.PostFileDto;
+import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
 
@@ -27,6 +28,14 @@ public interface PostMapper {
 	PostResponseDto findByPostId(PostRequestDto req);
 
 	/**
+	 * 스터디 모집포지션 목록 조회
+	 * @param PostRecruitPositDto
+	 * @return List<PostRecruitPositDto>
+	 */
+	List<PostRecruitPositDto> recruitPositList(PostRequestDto req);
+
+
+	/**
 	 * 게시물 등록
 	 * @param PostRequestDto
 	 *
@@ -38,7 +47,5 @@ public interface PostMapper {
 	void insertPostRecruitPosit(PostRequestDto req);
 
 	void insertPostFiles(@Param("list") List<PostFileDto> postFileDto);
-
-	int countPostsByUserId(@Param("userId") Long userId);
 
 }

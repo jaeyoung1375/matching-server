@@ -17,6 +17,8 @@ public enum CommonErrorCode implements ResponseCode {
 	DATA_NOT_FOUND("0001", HttpStatus.OK, "조회 데이터가 존재하지 않습니다."),
 	/** 입력값이 올바르지 않습니다. */
 	INVALID_INPUT("V0001", HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
+	/** 이미 지원한 게시글입니다. */
+	DUPLICATE_APPLY("A0001", HttpStatus.BAD_REQUEST, "이미 지원한 게시글입니다."),
 	/** 서버 오류가 발생했습니다. */
 	INTERNAL_SERVER_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
 

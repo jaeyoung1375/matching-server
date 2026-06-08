@@ -8,8 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -77,6 +79,8 @@ public class PostResponseDto {
 
 	@Schema(description = "수정일시")
 	private String modDt;
+
+	private List<PostRecruitPositDto> positions;
 
 
 	/** USERS 테이블 조인 **/

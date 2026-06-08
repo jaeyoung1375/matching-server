@@ -119,6 +119,26 @@
 		</where>
     </select>
 
+	<!-- 포지션 목록 조회 -->
+    <select id="recruitPositList" resultType="PostRecruitPositDto" parameterType="PostRequestDto">
+
+    	SELECT
+		 	    PRP.RECRUIT_POSIT_TYPE_CD
+		 	  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL
+		     	WHERE COM_CD_ID = 'RECRUIT_POSIT_TYPE_CD'
+		     	AND DTL_CD_ID = PRP.RECRUIT_POSIT_TYPE_CD) AS RECRUIT_POSIT_TYPE_NM
+		      , PRP.RECRUIT_CNT
+		      , COUNT(PA.APPLY_ID) AS CURRENT_CNT
+	    FROM POST_RECRUIT_POSITION prp
+		LEFT JOIN POST_APPLY PA
+		 ON PRP.POST_ID  = PA.POST_ID
+		AND PRP.RECRUIT_POSIT_TYPE_CD = PA.RECRUIT_POSIT_TYPE_CD
+		AND PA.STATUS_CD = '20'
+		WHERE PRP.POST_ID = #{postId}
+		GROUP BY PRP.RECRUIT_POSIT_TYPE_CD, PRP.RECRUIT_CNT
+
+    </select>
+
 
 
     <insert id="createPost" parameterType="PostRequestDto">
@@ -177,13 +197,15 @@
 
 	<insert id="insertPostRecruitPosit" parameterType="PostRequestDto">
 	    INSERT ALL
-	    <foreach collection="recruitPositTypeCd" item="posit">
+	    <foreach collection="recruitPositions" item="pos">
 	        INTO POST_RECRUIT_POSITION(
 	            POST_ID,
-	            RECRUIT_POSIT_TYPE_CD
+	            RECRUIT_POSIT_TYPE_CD,
+	            RECRUIT_CNT
 	        ) VALUES (
 	            #{postId},
-	            #{posit}
+	            #{pos.recruitPositTypeCd},
+	            #{pos.recruitCnt}
 	        )
 	    </foreach>
 	    SELECT 1 FROM DUAL
@@ -211,11 +233,7 @@
 	  ) D1
 	</insert>
 
-	<select id="countPostsByUserId" resultType="int">
-		SELECT COUNT(*)
-		FROM POST
-		WHERE USER_ID = #{userId}
-	</select>
+
 
 
 

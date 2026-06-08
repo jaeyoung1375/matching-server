@@ -1,5 +1,7 @@
 package kr.co.teamo.post.controller;
 
+import java.util.List;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.response.ApiResponse;
 import kr.co.teamo.common.util.PageResponseDto;
+import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
 import kr.co.teamo.post.service.PostService;
@@ -42,6 +45,9 @@ public class PostController {
 	public ApiResponse<PostResponseDto> post(@PathVariable(name = "postId") Long postId,  @Valid @ModelAttribute PostRequestDto req){
 
 		PostResponseDto post = postService.findByPostId(req);
+
+		List<PostRecruitPositDto> positions = postService.recruitPositList(req);
+		post.setPositions(positions);
 
 		return ApiResponse.ok(post);
 	}

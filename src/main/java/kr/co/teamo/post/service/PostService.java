@@ -3,18 +3,14 @@ package kr.co.teamo.post.service;
 import java.util.List;
 
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 
-import kr.co.teamo.common.code.FileErrorCode;
-import kr.co.teamo.common.exception.CustomException;
-import kr.co.teamo.common.file.dto.FileDto;
-import kr.co.teamo.common.file.service.FileService;
 import kr.co.teamo.common.util.PageResponseDto;
-import kr.co.teamo.notification.service.NotificationService;
-import kr.co.teamo.post.dto.PostFileDto;
+import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
 import kr.co.teamo.post.mapper.PostMapper;
@@ -27,9 +23,6 @@ public class PostService {
 
 	private final PostMapper postMapper;
 
-	private final FileService fileService;
-
-	private final NotificationService notificationService;
 
 	/**
 	 * 게시물 목록 조회
@@ -51,8 +44,16 @@ public class PostService {
 	 */
 	public PostResponseDto findByPostId(PostRequestDto req) {
 
+
 		return postMapper.findByPostId(req);
 	}
+
+	public List<PostRecruitPositDto> recruitPositList(PostRequestDto req){
+
+		return postMapper.recruitPositList(req);
+	}
+
+
 
 	/**
 	 * 게시물 등록
@@ -61,17 +62,22 @@ public class PostService {
 	@Transactional
 	public PostResponseDto createPost(PostRequestDto req) {
 
-		// 1. POST 테이블 INSERT
+		// 1. 포지션별 모집인원 합산 → recruitCnt 세팅
+		if (!ObjectUtils.isEmpty(req.getRecruitPositions())) {
+			long totalRecruitCnt = req.getRecruitPositions().stream()
+					.mapToLong(PostRecruitPositDto::getRecruitCnt)
+					.sum();
+			req.setRecruitCnt(totalRecruitCnt);
+		}
+
+		// 2. POST 테이블 INSERT
 		postMapper.createPost(req);
 
-		// 2. POST_TECH 테이블 INSERT
+		// 3. POST_TECH 테이블 INSERT
 		postMapper.insertPostTechStack(req);
 
+		// 4. POST_RECRUIT_POSITION 테이블 INSERT
 		postMapper.insertPostRecruitPosit(req);
-
-		if (postMapper.countPostsByUserId(req.getUserId()) == 1) {
-			notificationService.createFirstPostNotification(req.getUserId(), req.getPostId());
-		}
 //
 //		// 3. TEMP_YN = N 업데이트
 //		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());

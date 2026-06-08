@@ -7,7 +7,6 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -58,8 +57,8 @@ public class PostRequestDto {
 	@Schema(description = "모집마감일")
 	private String recruitEndDate;
 
-	@Schema(description = "모집포지션구분코드")
-	private List<String> recruitPositTypeCd;
+	@Schema(description = "포지션별 모집인원 목록")
+	private List<PostRecruitPositDto> recruitPositions;
 
 	@Schema(description = "모집대상")
 	private String recruitTarget;
