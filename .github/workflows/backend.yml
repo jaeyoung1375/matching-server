@@ -1,5 +1,6 @@
 name: Spring Deploy
 
+
 on:
   push:
     branches: [ develop ]
@@ -16,7 +17,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build
-        run: ./gradlew clean build -x test
+        run: ./gradlew build -x test --build-cache
 
       - name: Rename jar
         run: |
