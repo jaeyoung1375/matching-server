@@ -7,7 +7,7 @@
     <!-- 지원 등록 -->
     <insert id="insertApply" parameterType="ApplyRequestDto">
         <selectKey keyProperty="applyId" resultType="long" order="BEFORE">
-            SELECT APPLY_SEQ.NEXTVAL FROM DUAL
+            SELECT POST_APPLY_SEQ.NEXTVAL FROM DUAL
         </selectKey>
         INSERT INTO POST_APPLY (
             APPLY_ID                /* 지원 아이디 */

@@ -32,7 +32,7 @@ public class ApplyController {
     @Operation(summary = "지원 등록", description = "스터디/프로젝트에 지원합니다.")
     @PostMapping("/applies/{postId}")
     public ApiResponse<Void> createApply(
-            @PathVariable Long postId,
+            @PathVariable(name = "postId") Long postId,
             @RequestBody @Valid ApplyRequestDto req) {
 
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();

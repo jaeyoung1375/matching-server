@@ -15,6 +15,9 @@ import java.util.List;
 @Schema(description = "지원 요청 DTO")
 public class ApplyRequestDto {
 
+	@Schema(description = "지원 아이디")
+	private Long applyId;
+
     @Schema(description = "게시글 아이디")
     private Long postId;
 
