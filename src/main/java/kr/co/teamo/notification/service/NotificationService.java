@@ -43,7 +43,7 @@ public class NotificationService {
                 .targetId(userId)
                 .notificationTypeCd("SYSTEM")
                 .title("회원가입을 환영합니다")
-                .content("TEA:MO에 오신 것을 환영합니다.")
+                .content("TEAMO에 오신 것을 환영합니다.")
                 .build(), true);
     }
 

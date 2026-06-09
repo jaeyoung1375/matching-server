@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 
 import kr.co.teamo.common.util.PageResponseDto;
+import kr.co.teamo.notification.service.NotificationService;
 import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
@@ -23,6 +24,8 @@ public class PostService {
 
 	private final PostMapper postMapper;
 
+	private final NotificationService notificationService;
+
 
 	/**
 	 * 게시물 목록 조회
@@ -31,7 +34,8 @@ public class PostService {
 	 */
 	public PageResponseDto<PostResponseDto> selectAllPosts(PostRequestDto req){
 
-		PageHelper.startPage(req.getPageNum(),12);
+		int pageNum = req.getPageNum() == null ? 1 : req.getPageNum();
+		PageHelper.startPage(pageNum,12);
 		List<PostResponseDto> list = postMapper.selectAllPosts(req);
 
 		return PageResponseDto.of(list);
@@ -74,10 +78,18 @@ public class PostService {
 		postMapper.createPost(req);
 
 		// 3. POST_TECH 테이블 INSERT
-		postMapper.insertPostTechStack(req);
+		if (!ObjectUtils.isEmpty(req.getTechStackTypeCd())) {
+			postMapper.insertPostTechStack(req);
+		}
 
 		// 4. POST_RECRUIT_POSITION 테이블 INSERT
-		postMapper.insertPostRecruitPosit(req);
+		if (!ObjectUtils.isEmpty(req.getRecruitPositions())) {
+			postMapper.insertPostRecruitPosit(req);
+		}
+
+		if (postMapper.countPostsByUser(req.getUserId()) == 1) {
+			notificationService.createFirstPostNotification(req.getUserId(), req.getPostId());
+		}
 //
 //		// 3. TEMP_YN = N 업데이트
 //		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());

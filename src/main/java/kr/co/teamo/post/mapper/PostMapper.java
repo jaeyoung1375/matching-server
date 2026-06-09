@@ -48,4 +48,6 @@ public interface PostMapper {
 
 	void insertPostFiles(@Param("list") List<PostFileDto> postFileDto);
 
+	int countPostsByUser(@Param("userId") Long userId);
+
 }

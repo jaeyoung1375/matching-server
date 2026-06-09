@@ -139,6 +139,12 @@
 
     </select>
 
+	<select id="countPostsByUser" resultType="int">
+		SELECT COUNT(*)
+		FROM POST
+		WHERE USER_ID = #{userId}
+	</select>
+
 
 
     <insert id="createPost" parameterType="PostRequestDto">

@@ -74,7 +74,7 @@ public class PostRequestDto {
 
 	@Schema(description = "현재 페이지")
 	@Builder.Default
-	private int pageNum = 1;
+	private Integer pageNum = 1;
 
 
 
