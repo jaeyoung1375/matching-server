@@ -2,10 +2,12 @@ package kr.co.teamo.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.co.teamo.auth.dto.*;
 import kr.co.teamo.auth.service.AuthService;
 import kr.co.teamo.common.response.ApiResponse;
+import kr.co.teamo.common.util.ClientIpProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +22,13 @@ import java.util.List;
 public class AuthPublicController {
 
     private final AuthService authService;
+    private final ClientIpProvider clientIpProvider;
 
     @Operation(summary = "회원가입", description = "회원가입 API")
     @PostMapping("/signup")
-    public ApiResponse<SignupResponse> signup(@Valid @RequestBody SignupRequest req) {
+    public ApiResponse<SignupResponse> signup(@Valid @RequestBody SignupRequest req, HttpServletRequest request) {
         log.info("[signup] 요청 진입 — email: {}", req.getEmail());
-        SignupResponse res = authService.signup(req);
+        SignupResponse res = authService.signup(req, clientIpProvider.getClientIp(request));
         log.info("[signup] 완료 — userId: {}", res.getUserId());
         return ApiResponse.ok(res);
     }
@@ -50,17 +53,17 @@ public class AuthPublicController {
 
     @Operation(summary = "로그인", description = "로그인 API")
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest req){
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest req, HttpServletRequest request){
         log.info("[login] 요청 진입 — email: {}", req.getEmail());
-        LoginResponse res = authService.login(req);
+        LoginResponse res = authService.login(req, clientIpProvider.getClientIp(request));
         log.info("[login] 완료 — accessToken 발급");
         return ApiResponse.ok(res);
     }
 
     @Operation(summary = "RefreshToken 재발급", description = "RefreshToken 재발급 API")
     @PostMapping("/refresh")
-    public ApiResponse<RefreshResponse> refreshToken(@RequestBody RefreshRequest req){
-        RefreshResponse res = authService.refreshToken(req);
+    public ApiResponse<RefreshResponse> refreshToken(@RequestBody RefreshRequest req, HttpServletRequest request){
+        RefreshResponse res = authService.refreshToken(req, clientIpProvider.getClientIp(request));
         return ApiResponse.ok(res);
     }
 }

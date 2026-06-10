@@ -3,12 +3,15 @@ package kr.co.teamo.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import kr.co.teamo.admin.log.dto.SystemLogCreateDto;
+import kr.co.teamo.admin.log.service.SystemLogService;
 import kr.co.teamo.auth.dto.UpdateUserRequest;
 import kr.co.teamo.auth.dto.User;
 import kr.co.teamo.auth.dto.WithdrawRequest;
 import kr.co.teamo.auth.service.AuthService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.response.ApiResponse;
+import kr.co.teamo.common.util.ClientIpProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,8 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtTokenUtil jwtTokenUtil;
+    private final ClientIpProvider clientIpProvider;
+    private final SystemLogService systemLogService;
 
     @Operation(summary = "로그인한 사용자 정보 조회", description = "로그인한 사용자 정보 조회 API")
     @GetMapping("/me")
@@ -47,6 +52,13 @@ public class AuthController {
         String accessToken = resolveToken(request);
 
         authService.logout(userId, accessToken);
+        systemLogService.saveLog(SystemLogCreateDto.builder()
+                .logTypeCd("BE")
+                .userId(userId)
+                .actionCd("LOGOUT")
+                .message("Backend logout")
+                .ipAddress(clientIpProvider.getClientIp(request))
+                .build());
         return ApiResponse.ok();
     }
 

@@ -1,5 +1,7 @@
 package kr.co.teamo.auth.service;
 
+import kr.co.teamo.admin.log.dto.SystemLogCreateDto;
+import kr.co.teamo.admin.log.service.SystemLogService;
 import kr.co.teamo.auth.dto.*;
 import kr.co.teamo.auth.mapper.AuthMapper;
 import kr.co.teamo.auth.util.AesEncryptor;
@@ -43,12 +45,13 @@ public class AuthService {
     private final RedisTemplate<Object, Object> redisTemplate;
     private final AesEncryptor aesEncryptor;
     private final NotificationService notificationService;
+    private final SystemLogService systemLogService;
     @Value("${file.upload.path}")
     private String uploadPath;
 
     // 회원가입
     @Transactional
-    public SignupResponse signup(SignupRequest req) {
+    public SignupResponse signup(SignupRequest req, String ipAddress) {
 
         String email = req.getEmail().trim().toLowerCase();
 
@@ -80,6 +83,7 @@ public class AuthService {
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, refreshToken);
+        saveUserLog(userId, "SIGNUP", "Backend signup", ipAddress);
 
         return SignupResponse.builder()
                 .userId(userId)
@@ -91,7 +95,7 @@ public class AuthService {
     }
 
     // 로그인
-    public LoginResponse login(LoginRequest req) {
+    public LoginResponse login(LoginRequest req, String ipAddress) {
 
         LoginDto user = authMapper.findByEmail(req.getEmail());
 
@@ -120,6 +124,7 @@ public class AuthService {
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, refreshToken);
+        saveUserLog(userId, "LOGIN", "Backend login", ipAddress);
 
         return LoginResponse.builder()
                 .accessToken(accessToken)
@@ -128,7 +133,7 @@ public class AuthService {
     }
 
     // 토큰 재발급
-    public RefreshResponse refreshToken(RefreshRequest req) {
+    public RefreshResponse refreshToken(RefreshRequest req, String ipAddress) {
 
         String refreshToken = req.getRefreshToken();
 
@@ -154,6 +159,7 @@ public class AuthService {
         String newRefreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, newRefreshToken);
+        saveUserLog(userId, "REFRESH", "Backend refresh token", ipAddress);
 
         return RefreshResponse.builder()
                 .accessToken(newAccessToken)
@@ -294,6 +300,16 @@ public class AuthService {
         return authMapper.existsEmail(email) > 0;
     }
 
+    private void saveUserLog(Long userId, String actionCd, String message, String ipAddress) {
+        systemLogService.saveLog(SystemLogCreateDto.builder()
+                .logTypeCd("BE")
+                .userId(userId)
+                .actionCd(actionCd)
+                .message(message)
+                .ipAddress(ipAddress)
+                .build());
+    }
+
     // 기술 스택 조회
     public List<TechStackResponse> getTechStacks(){
         return authMapper.findAll();
@@ -339,7 +355,8 @@ public class AuthService {
             String name,
             String provider,
             String providerUserId,
-            String providerAccessToken
+            String providerAccessToken,
+            String ipAddress
     ) {
         SocialAccount account = authMapper.findSocialAccount(provider, providerUserId);
 
@@ -414,6 +431,7 @@ public class AuthService {
         String refreshToken = jwtTokenUtil.createRefreshToken(userId);
 
         refreshTokenRedisService.save(userId, refreshToken);
+        saveUserLog(userId, "SOCIAL", "Backend social login", ipAddress);
 
         return SocialLoginResponse.builder()
                 .accessToken(accessToken)

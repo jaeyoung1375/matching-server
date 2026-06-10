@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.teamo.auth.dto.SocialLoginResponse;
 import kr.co.teamo.auth.service.AuthService;
+import kr.co.teamo.common.util.ClientIpProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
     private final OAuth2AuthorizedClientService authorizedClientService;
+    private final ClientIpProvider clientIpProvider;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -105,7 +107,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // ✅ 로그인 처리
         SocialLoginResponse loginResponse =
-                authService.socialLogin(email, name, provider, providerUserId, providerAccessToken );
+                authService.socialLogin(email, name, provider, providerUserId, providerAccessToken,
+                        clientIpProvider.getClientIp(request));
 
         String accessToken  = loginResponse.getAccessToken();
         String refreshToken = loginResponse.getRefreshToken();

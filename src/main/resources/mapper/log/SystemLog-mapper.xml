@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.teamo.admin.log.mapper.SystemLogMapper">
+
+    <insert id="insertSystemLog"
+            parameterType="kr.co.teamo.admin.log.dto.SystemLogCreateDto">
+        INSERT INTO SYSTEM_LOG (
+            LOG_ID,
+            LOG_TYPE_CD,
+            USER_ID,
+            ACTION_CD,
+            MESSAGE,
+            DETAIL_CONTENT,
+            IP_ADDRESS,
+            CREATED_DT,
+            USE_YN
+        ) VALUES (
+                     SYSTEM_LOG_SEQ.NEXTVAL,
+                     #{logTypeCd},
+                     #{userId, jdbcType=NUMERIC},
+                     #{actionCd},
+                     #{message},
+                     #{detailContent, jdbcType=CLOB},
+                     #{ipAddress},
+                     SYSDATE,
+                     'Y'
+                 )
+    </insert>
+
+    <select id="selectSystemLogs"
+            parameterType="kr.co.teamo.admin.log.dto.AdminLogSearchRequest"
+            resultType="kr.co.teamo.admin.log.dto.AdminLogDto">
+        SELECT
+        LOG_ID AS logId,
+        LOG_TYPE_CD AS logTypeCd,
+        USER_ID AS userId,
+        ACTION_CD AS actionCd,
+        MESSAGE AS message,
+        DETAIL_CONTENT AS detailContent,
+        IP_ADDRESS AS ipAddress,
+        CREATED_DT AS createdDt,
+        USE_YN AS useYn
+        FROM SYSTEM_LOG
+        <where>
+            USE_YN = 'Y'
+
+            <if test="logTypeCd != null and logTypeCd != ''">
+                AND LOG_TYPE_CD = #{logTypeCd}
+            </if>
+
+            <if test="userId != null">
+                AND USER_ID = #{userId}
+            </if>
+
+            <if test="actionCd != null and actionCd != ''">
+                AND ACTION_CD = #{actionCd}
+            </if>
+
+            <if test="keyword != null and keyword != ''">
+                AND MESSAGE LIKE '%' || #{keyword} || '%'
+            </if>
+
+            <if test="startDate != null and startDate != ''">
+                AND CREATED_DT <![CDATA[>=]]> TO_DATE(#{startDate}, 'YYYY-MM-DD')
+            </if>
+
+            <if test="endDate != null and endDate != ''">
+                AND CREATED_DT <![CDATA[<]]> TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+            </if>
+        </where>
+        ORDER BY CREATED_DT DESC, LOG_ID DESC
+    </select>
+
+</mapper>
