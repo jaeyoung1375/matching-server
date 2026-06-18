@@ -2,6 +2,7 @@ package kr.co.teamo.configuration;
 
 import kr.co.teamo.auth.filter.JwtAuthenticationFilter;
 import kr.co.teamo.auth.handler.OAuth2SuccessHandler;
+import kr.co.teamo.auth.security.RestAccessDeniedHandler;
 import kr.co.teamo.auth.security.RestAuthenticationEntryPoint;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class SecurityConfig {
 
     private final JwtTokenUtil jwtTokenUtil;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
     private final CorsConfig corsConfig;
 
     @Bean
@@ -41,7 +43,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(eh -> eh.authenticationEntryPoint(restAuthenticationEntryPoint))
+                .exceptionHandling(eh -> eh
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                        .accessDeniedHandler(restAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/error").permitAll()
