@@ -46,6 +46,8 @@ public class AuthService {
     private final AesEncryptor aesEncryptor;
     private final NotificationService notificationService;
     private final SystemLogService systemLogService;
+    private final UserProfileCacheService userProfileCacheService;
+    private final TechStackCacheService techStackCacheService;
     @Value("${file.upload.path}")
     private String uploadPath;
 
@@ -211,6 +213,9 @@ public class AuthService {
 
         // 토큰 삭제
         refreshTokenRedisService.delete(userId);
+
+        // 프로필 캐시 삭제
+        userProfileCacheService.delete(userId);
     }
 
     private void unlink(String provider, String token) {
@@ -252,6 +257,11 @@ public class AuthService {
 
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
 
+        User cached = userProfileCacheService.findByUserId(userId);
+        if (cached != null) {
+            return cached;
+        }
+
         User user = authMapper.findById(userId);
 
         if (user == null) {
@@ -263,6 +273,8 @@ public class AuthService {
                     user.getFilePath() + "/" + user.getSaveFileNm()
             );
         }
+
+        userProfileCacheService.save(userId, user);
 
         return user;
     }
@@ -312,7 +324,13 @@ public class AuthService {
 
     // 기술 스택 조회
     public List<TechStackResponse> getTechStacks(){
-        return authMapper.findAll();
+        List<TechStackResponse> cached = techStackCacheService.findAll();
+        if (cached != null) {
+            return cached;
+        }
+        List<TechStackResponse> list = authMapper.findAll();
+        techStackCacheService.save(list);
+        return list;
     }
     
     // 마이페이지 수정
@@ -346,6 +364,9 @@ public class AuthService {
                 authMapper.insertUserLanguage(userId, dtlCdId);
             }
         }
+
+        // 프로필 캐시 삭제
+        userProfileCacheService.delete(userId);
     }
 
     // 소셜 로그인 추가(google)
@@ -502,5 +523,8 @@ public class AuthService {
         if (oldFileId != null && !oldFileId.equals(fileId)) {
             authMapper.softDeleteFile(oldFileId);
         }
+
+        // 프로필 캐시 삭제
+        userProfileCacheService.delete(userId);
     }
 }
