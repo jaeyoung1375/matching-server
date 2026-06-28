@@ -2,18 +2,21 @@ package kr.co.teamo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import javax.sql.DataSource;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.autoconfigure.exclude=org.springframework.boot.data.jdbc.autoconfigure.DataJdbcRepositoriesAutoConfiguration," +
+        "org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration"
+})
 class teamoServerApplicationTests {
 
-    @MockBean
+    @MockitoBean
     DataSource dataSource;
 
-    @MockBean
+    @MockitoBean
     RedisConnectionFactory redisConnectionFactory;
 
     @Test

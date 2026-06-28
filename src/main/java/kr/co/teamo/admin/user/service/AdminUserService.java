@@ -2,6 +2,7 @@ package kr.co.teamo.admin.user.service;
 
 import kr.co.teamo.admin.mapper.AdminMapper;
 import kr.co.teamo.admin.user.dto.AdminUserDto;
+import kr.co.teamo.auth.service.UserProfileCacheService;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 public class AdminUserService {
     private final AdminMapper adminMapper;
     private final RedisTemplate<Object,Object> redisTemplate;
+    private final UserProfileCacheService userProfileCacheService;
 
     public List<AdminUserDto> searchUsers(String name, String email){
         List<AdminUserDto> users = adminMapper.searchUsers(name, email);
@@ -45,6 +47,7 @@ public class AdminUserService {
     public void updateUserRole(Long userId, String role){
         validateActiveUser(userId);
         adminMapper.updateUserRole(userId, role);
+        userProfileCacheService.delete(userId);
     }
 
     // 회원 상세 > 강제 로그아웃
