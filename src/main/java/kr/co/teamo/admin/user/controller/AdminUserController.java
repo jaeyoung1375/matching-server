@@ -24,8 +24,8 @@ public class AdminUserController {
     @Operation(summary = "회원 조회", description = "닉네임,이메일 조회 API")
     @GetMapping("/search")
     public ApiResponse<List<AdminUserDto>> searchUsers(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String email
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "email", required = false) String email
     ) {
         return ApiResponse.ok(adminUserService.searchUsers(name,email));
     }
@@ -33,7 +33,7 @@ public class AdminUserController {
     @Operation(summary = "회원 권한 변경", description = "회원 권한 변경 API")
     @PatchMapping("/{userId}/role")
     public ApiResponse<Void> updateUserRole(
-            @PathVariable Long userId, @RequestBody @Valid UpdateUserRole request
+            @PathVariable(name = "userId") Long userId, @RequestBody @Valid UpdateUserRole request
     ){
         adminUserService.updateUserRole(userId, request.getRole());
         return ApiResponse.ok();
@@ -42,7 +42,7 @@ public class AdminUserController {
     @Operation(summary = "강제로그아웃", description = "강제로그아웃 API")
     @PostMapping("/{userId}/force-logout")
     public ApiResponse<Void> forceLogout(
-            @PathVariable Long userId
+            @PathVariable(name = "userId") Long userId
     ){
         adminUserService.forceLogout(userId);
         return ApiResponse.ok();

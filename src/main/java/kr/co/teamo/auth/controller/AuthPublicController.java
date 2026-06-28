@@ -35,7 +35,7 @@ public class AuthPublicController {
 
     @Operation(summary = "회원가입 이메일 중복검사", description = "회원가입 이메일 중복검사 API")
     @GetMapping("/exists-email")
-    public ApiResponse<Boolean> existsByEmail(@RequestParam String email) {
+    public ApiResponse<Boolean> existsByEmail(@RequestParam(name = "email") String email) {
         log.debug("[existsByEmail] email: {}", email);
         return ApiResponse.ok(
                 authService.existsByEmail(email)

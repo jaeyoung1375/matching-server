@@ -53,7 +53,7 @@ public class ApplyController {
     @Operation(summary = "지원 목록 조회", description = "게시글에 지원한 목록을 조회합니다.")
     @GetMapping("/applies/{postId}")
     public ApiResponse<List<ApplyResponseDto>> getApplyList(
-            @PathVariable Long postId) {
+            @PathVariable(name = "postId") Long postId) {
 
         return ApiResponse.ok(applyService.getApplyList(postId));
     }

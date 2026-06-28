@@ -31,7 +31,7 @@ public class NotificationController {
     }
 
     @PatchMapping("/notifications/{notificationId}/read")
-    public ApiResponse<Void> markAsRead(@PathVariable Long notificationId) {
+    public ApiResponse<Void> markAsRead(@PathVariable(name = "notificationId") Long notificationId) {
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
         notificationService.markAsRead(notificationId, userId);
         return ApiResponse.ok();

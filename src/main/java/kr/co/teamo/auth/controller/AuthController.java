@@ -83,7 +83,7 @@ public class AuthController {
     // 파일 업로드 API
     @PostMapping("/profile-image")
     public ApiResponse<Void> uploadProfileImage(
-            @RequestParam MultipartFile file
+            @RequestParam(name = "file") MultipartFile file
     ) {
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
 

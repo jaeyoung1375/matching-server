@@ -26,7 +26,7 @@ public class CommentController {
      */
     @GetMapping("/public/posts/{postId}/comments")
     public ApiResponse<List<CommentResponseDto>> getComments(
-            @PathVariable Long postId) {
+            @PathVariable(name = "postId") Long postId) {
 
         Long userId = resolveCurrentUserId();
         log.debug("[getComments] postId={}, userId={}", postId, userId);
@@ -40,7 +40,7 @@ public class CommentController {
      */
     @PostMapping("/posts/{postId}/comments")
     public ApiResponse<Void> createComment(
-            @PathVariable Long postId,
+            @PathVariable(name = "postId") Long postId,
             @RequestBody @Valid CommentRequestDto req) {
 
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
@@ -53,8 +53,8 @@ public class CommentController {
      */
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public ApiResponse<Void> deleteComment(
-            @PathVariable Long postId,
-            @PathVariable Long commentId) {
+            @PathVariable(name = "postId") Long postId,
+            @PathVariable(name = "commentId") Long commentId) {
 
         Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
         commentService.deleteComment(commentId, userId);

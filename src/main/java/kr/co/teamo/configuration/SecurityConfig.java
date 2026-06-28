@@ -90,11 +90,21 @@ public class SecurityConfig {
                 new DefaultOAuth2AuthorizationRequestResolver(
                         repo, "/oauth2/authorization");
 
-        resolver.setAuthorizationRequestCustomizer(customizer -> {
-            customizer.additionalParameters(params -> {
-                params.remove("code_challenge");
-                params.remove("code_challenge_method");
+        resolver.setAuthorizationRequestCustomizer(builder -> {
+            // 카카오는 PKCE 미지원 → PKCE 파라미터 제거. Google/GitHub은 PKCE 필수이므로 유지
+            final String[] registrationId = {null};
+            builder.attributes(attrs -> {
+                registrationId[0] = (String) attrs.get("registration_id");
+                if ("kakao".equals(registrationId[0])) {
+                    attrs.remove("code_challenge_method");
+                }
             });
+            if ("kakao".equals(registrationId[0])) {
+                builder.additionalParameters(params -> {
+                    params.remove("code_challenge");
+                    params.remove("code_challenge_method");
+                });
+            }
         });
 
         return resolver;
