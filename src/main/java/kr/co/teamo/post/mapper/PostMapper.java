@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import kr.co.teamo.post.dto.PostApplyUserDto;
 import kr.co.teamo.post.dto.PostFileDto;
 import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
@@ -49,5 +50,7 @@ public interface PostMapper {
 	void insertPostFiles(@Param("list") List<PostFileDto> postFileDto);
 
 	int countPostsByUser(@Param("userId") Long userId);
+
+	List<PostApplyUserDto> selectApplyUsers(@Param("postId") Long postId);
 
 }

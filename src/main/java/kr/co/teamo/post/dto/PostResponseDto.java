@@ -82,6 +82,8 @@ public class PostResponseDto {
 
 	private List<PostRecruitPositDto> positions;
 
+	private List<PostApplyUserDto> applyUsers;
+
 
 	/** USERS 테이블 조인 **/
 	@Schema(description = "사용자명")
