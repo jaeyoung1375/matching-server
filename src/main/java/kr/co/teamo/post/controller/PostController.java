@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import kr.co.teamo.apply.service.ApplyService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.response.ApiResponse;
 import kr.co.teamo.common.util.PageResponseDto;
+import kr.co.teamo.post.dto.PostApplyUserDto;
 import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
@@ -29,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class PostController {
 
 	private final PostService postService;
+
+	private final ApplyService applyService;
 
 	private final JwtTokenUtil jwtTokenUtil;
 
@@ -47,7 +51,9 @@ public class PostController {
 		PostResponseDto post = postService.findByPostId(req);
 
 		List<PostRecruitPositDto> positions = postService.recruitPositList(req);
+		List<PostApplyUserDto> applyUsers = postService.selectApplyUsers(req);
 		post.setPositions(positions);
+		post.setApplyUsers(applyUsers);
 
 		return ApiResponse.ok(post);
 	}

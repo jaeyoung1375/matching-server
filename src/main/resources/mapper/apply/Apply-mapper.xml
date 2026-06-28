@@ -27,7 +27,7 @@
           , #{techStackCdStr}
           , #{applyReason}
           , #{portfolioUrl}
-          , '10'
+          , #{statusCd}
           , SYSDATE
         )
     </insert>

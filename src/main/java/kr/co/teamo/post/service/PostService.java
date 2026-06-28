@@ -9,8 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 
+import kr.co.teamo.apply.dto.ApplyRequestDto;
+import kr.co.teamo.apply.service.ApplyService;
+import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.util.PageResponseDto;
 import kr.co.teamo.notification.service.NotificationService;
+import kr.co.teamo.post.dto.PostApplyUserDto;
 import kr.co.teamo.post.dto.PostRecruitPositDto;
 import kr.co.teamo.post.dto.PostRequestDto;
 import kr.co.teamo.post.dto.PostResponseDto;
@@ -25,6 +29,10 @@ public class PostService {
 	private final PostMapper postMapper;
 
 	private final NotificationService notificationService;
+
+	private final JwtTokenUtil jwtTokenUtil;
+
+	private final ApplyService applyService;
 
 
 	/**
@@ -57,6 +65,11 @@ public class PostService {
 		return postMapper.recruitPositList(req);
 	}
 
+	public List<PostApplyUserDto> selectApplyUsers(PostRequestDto req){
+
+		return postMapper.selectApplyUsers(req.getPostId());
+	}
+
 
 
 	/**
@@ -86,6 +99,18 @@ public class PostService {
 		if (!ObjectUtils.isEmpty(req.getRecruitPositions())) {
 			postMapper.insertPostRecruitPosit(req);
 		}
+
+
+		// 작성자 자동 등록
+		ApplyRequestDto leader = ApplyRequestDto
+				.builder()
+				.postId(req.getPostId())
+				.userId(jwtTokenUtil.getMemberIdFromSecurityContext())
+				.statusCd("20")
+				.build();
+
+		applyService.createApply(leader);
+
 
 		if (postMapper.countPostsByUser(req.getUserId()) == 1) {
 			notificationService.createFirstPostNotification(req.getUserId(), req.getPostId());

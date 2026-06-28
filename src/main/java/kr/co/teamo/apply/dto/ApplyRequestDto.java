@@ -40,4 +40,7 @@ public class ApplyRequestDto {
 
     @Schema(description = "포트폴리오 URL", example = "https://github.com/yourname")
     private String portfolioUrl;
+
+    @Schema(description = "지원 상태코드")
+    private String statusCd;
 }

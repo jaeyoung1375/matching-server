@@ -80,6 +80,7 @@
 
      SELECT
 				p.POST_ID
+			  , p.USER_ID
 			  , p.TITLE
 			  , P.CONTENT
 			  , P.PROGRESS_PERIOD
@@ -238,6 +239,18 @@
 	    </foreach>
 	  ) D1
 	</insert>
+
+	<select id="selectApplyUsers" parameterType="PostApplyUserDto" resultType="PostApplyUserDto">
+
+		SELECT
+			    PA.USER_ID
+			  , U.NAME
+		FROM POST_APPLY PA
+		INNER JOIN USERS u
+		ON PA.USER_ID = U.USER_ID
+		WHERE PA.POST_ID = #{postId}
+		AND PA.STATUS_CD = '20'
+	</select>
 
 
 
