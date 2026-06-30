@@ -30,7 +30,7 @@
 	  </if>
 	  AND A.USE_YN = 'Y'
 	  </where>
-	  ORDER BY SORT_SEQ
+	  ORDER BY A.SORT_SEQ, B.SORT_SEQ
 
     </select>
 
