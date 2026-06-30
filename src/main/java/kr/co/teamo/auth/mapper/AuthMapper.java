@@ -20,7 +20,8 @@ public interface AuthMapper {
     int existsEmail(String Email);
     User findById(Long userId);
     List<TechStackResponse> findAll();
-    void updateUser(@Param("userId") Long userId, @Param("name") String name, @Param("password") String password);
+    void updateUser(@Param("userId") Long userId, @Param("name") String name, @Param("password") String password,
+                    @Param("careerYrs") String careerYrs, @Param("recruitPositTypeCd") String recruitPositTypeCd);
     void deleteUserLanguage(Long userId);
     SocialAccount findSocialAccount(
             @Param("provider") String provider,

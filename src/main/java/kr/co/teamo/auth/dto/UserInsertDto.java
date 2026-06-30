@@ -35,4 +35,10 @@ public class UserInsertDto {
     @Schema(description = "프로필")
     private Long profileFileId;
 
+    @Schema(description = "연차")
+    private String careerYrs;
+
+    @Schema(description = "포지션")
+    private String recruitPositTypeCd;
+
 }

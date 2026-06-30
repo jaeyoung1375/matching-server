@@ -26,7 +26,9 @@
         ROLE,
         REG_DT,
         MOD_DT,
-        PROFILE_FILE_ID
+        PROFILE_FILE_ID,
+        CAREER_YRS,
+        RECRUIT_POSIT_TYPE_CD
         ) VALUES (
         #{userId},
         #{email},
@@ -37,7 +39,9 @@
         'USER',
         SYSDATE,
         SYSDATE,
-        #{profileFileId, jdbcType=NUMERIC}
+        #{profileFileId, jdbcType=NUMERIC},
+        #{careerYrs, jdbcType=VARCHAR},
+        #{recruitPositTypeCd, jdbcType=VARCHAR}
         )
     </insert>
 
@@ -94,6 +98,8 @@
         <result property="filePath" column="FILE_PATH"/>
         <result property="saveFileNm" column="SAVE_FILE_NM"/>
         <result property="passwordHash" column="PASSWORD_HASH"/>
+        <result property="careerYrs" column="CAREER_YRS"/>
+        <result property="recruitPositTypeCd" column="RECRUIT_POSIT_TYPE_CD"/>
 
         <collection property="languages" ofType="TechStackResponse">
             <result property="dtlCdId" column="DTL_CD_ID"/>
@@ -112,6 +118,8 @@
             u.PASSWORD_HASH,
             u.PROFILE_FILE_ID,
             u.STATUS,
+            u.CAREER_YRS,
+            u.RECRUIT_POSIT_TYPE_CD,
             ccd.DTL_CD_ID,
             ccd.DTL_CD_NM,
             sa.PROVIDER,
@@ -145,6 +153,12 @@
             NAME = #{name},
             <if test="password !=null">
                 PASSWORD_HASH = #{password},
+            </if>
+            <if test="careerYrs != null">
+                CAREER_YRS = #{careerYrs},
+            </if>
+            <if test="recruitPositTypeCd != null">
+                RECRUIT_POSIT_TYPE_CD = #{recruitPositTypeCd},
             </if>
             MOD_DT = SYSDATE
         </set>

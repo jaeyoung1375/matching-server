@@ -28,4 +28,6 @@ public class SignupRequest {
     private String phone;
 
     private List<String> dtlCdIds;
+    private String careerYrs;
+    private String recruitPositTypeCd;
 }

@@ -24,5 +24,7 @@ public class User {
     private Long memberId;
     private String filePath;
     private String saveFileNm;
+    private String careerYrs;
+    private String recruitPositTypeCd;
     private List<TechStackResponse> languages = new ArrayList<>();
 }

@@ -67,6 +67,8 @@ public class AuthService {
         .status("ACTIVE")
         .name(req.getName().trim())
         .phone(req.getPhone().trim())
+        .careerYrs(req.getCareerYrs())
+        .recruitPositTypeCd(req.getRecruitPositTypeCd())
         .build();
 
         authMapper.insertUser(dto);
@@ -353,7 +355,7 @@ public class AuthService {
         }
 
         // 유저 정보 수정
-        authMapper.updateUser(userId, request.getName(), encodedPassword);
+        authMapper.updateUser(userId, request.getName(), encodedPassword, request.getCareerYrs(), request.getRecruitPositTypeCd());
 
         // 기술스택 초기화
         authMapper.deleteUserLanguage(userId);

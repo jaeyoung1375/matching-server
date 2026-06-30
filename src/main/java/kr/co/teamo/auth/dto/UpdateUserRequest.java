@@ -11,4 +11,6 @@ public class UpdateUserRequest {
     private String name;
     private String password;
     private List<String> dtlCdIds;
+    private String careerYrs;
+    private String recruitPositTypeCd;
 }
