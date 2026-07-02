@@ -1,10 +1,13 @@
 package kr.co.teamo.configuration;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.teamo.common.interceptor.ApiAccessLogInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -36,6 +39,16 @@ public class WebConfig implements WebMvcConfigurer {
 						"/api/v1/public/client-logs",
 						"/api/v1/admin/logs/**"
 				);
+
+		// 업로드 정적 리소스는 프론트(localhost:3000)에서 <img>로 크로스 오리진 로드하므로
+		// Chrome ORB(Opaque Response Blocking)에 걸리지 않도록 CORP 헤더를 명시한다.
+		registry.addInterceptor(new HandlerInterceptor() {
+			@Override
+			public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+				response.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+				return true;
+			}
+		}).addPathPatterns(uploadServer + "/**");
 	}
 
 	@Override
