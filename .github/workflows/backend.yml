@@ -1,9 +1,6 @@
 name: Spring Deploy
 
 
-on:
-  push:
-    branches: [ develop ]
 
 jobs:
   build:
