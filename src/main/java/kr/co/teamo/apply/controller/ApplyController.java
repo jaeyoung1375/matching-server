@@ -57,4 +57,19 @@ public class ApplyController {
 
         return ApiResponse.ok(applyService.getApplyList(postId));
     }
+
+
+    /**
+     * 지원 수락/거절
+     */
+    @Operation(summary = "지원 수락/거절", description = "게시글에 지원한 목록을 수락/거절합니다.")
+    @PatchMapping("/applies/{applyId}/status")
+    public ApiResponse<Void> modifyApplyStatus(
+            @PathVariable(name = "applyId") Long applyId, @RequestBody ApplyRequestDto req) {
+
+    	req.setApplyId(applyId);
+    	applyService.updateApply(req);
+
+        return ApiResponse.ok();
+    }
 }

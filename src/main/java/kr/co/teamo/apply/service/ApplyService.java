@@ -2,6 +2,7 @@ package kr.co.teamo.apply.service;
 
 import kr.co.teamo.apply.dto.ApplyRequestDto;
 import kr.co.teamo.apply.dto.ApplyResponseDto;
+import kr.co.teamo.apply.enums.ApplyStatusCd;
 import kr.co.teamo.apply.mapper.ApplyMapper;
 import kr.co.teamo.common.code.CommonErrorCode;
 import kr.co.teamo.common.exception.CustomException;
@@ -36,7 +37,7 @@ public class ApplyService {
         }
 
         // 지원 등록
-        applyMapper.insertApply(req);
+        applyMapper.insertApply(req, ApplyStatusCd.WAIT.getCode());
     }
 
     /**
@@ -44,5 +45,14 @@ public class ApplyService {
      */
     public List<ApplyResponseDto> getApplyList(Long postId) {
         return applyMapper.selectApplyListByPostId(postId);
+    }
+
+    /**
+     * 지원 상태 변경(수락/거절)
+     * @param req
+     */
+    public void updateApply(ApplyRequestDto req) {
+    	applyMapper.updateApplyStatus(req);
+
     }
 }

@@ -1,5 +1,7 @@
 package kr.co.teamo.apply.dto;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -20,6 +22,9 @@ public class ApplyResponseDto {
     @Schema(description = "사용자 아이디")
     private Long userId;
 
+    @Schema(description = "사용자 이름")
+    private String name;
+
     @Schema(description = "지원 포지션 코드")
     private String recruitPositTypeCd;
 
@@ -27,7 +32,7 @@ public class ApplyResponseDto {
     private String recruitPositTypeNm;
 
     @Schema(description = "기술스택")
-    private String techStackCd;
+    private List<String> techStackCd;
 
     @Schema(description = "지원 동기")
     private String applyReason;
@@ -36,7 +41,7 @@ public class ApplyResponseDto {
     private String portfolioUrl;
 
     @Schema(description = "지원 상태 코드", example = "10")
-    private String applyStatusCd;
+    private String statusCd;
 
     @Schema(description = "지원 상태명", example = "대기")
     private String statusNm;

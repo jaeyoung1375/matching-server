@@ -4,6 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.teamo.apply.mapper.ApplyMapper">
 
+	<!-- ResultMap에 typeHandler 지정 -->
+	<resultMap id="ApplyResultMap" type="ApplyResponseDto" autoMapping="true">
+	    <result property="techStackCd"        column="TECH_STACK_CD"        typeHandler="StringListTypeHandler"/>
+	</resultMap>
+
     <!-- 지원 등록 -->
     <insert id="insertApply" parameterType="ApplyRequestDto">
         <selectKey keyProperty="applyId" resultType="long" order="BEFORE">
@@ -21,24 +26,26 @@
           , REG_DT                  /* 등록일 */
         ) VALUES (
             #{applyId}
-          , #{postId}
-          , #{userId}
-          , #{recruitPositTypeCd}
-          , #{techStackCdStr}
-          , #{applyReason}
-          , #{portfolioUrl}
+          , #{req.postId}
+          , #{req.userId}
+          , #{req.recruitPositTypeCd}
+          , #{req.techStackCdStr}
+          , #{req.applyReason}
+          , #{req.portfolioUrl}
           , #{statusCd}
           , SYSDATE
         )
     </insert>
 
     <!-- 게시글별 지원 목록 조회 -->
-    <select id="selectApplyListByPostId" resultType="ApplyResponseDto">
+    <select id="selectApplyListByPostId" resultType="ApplyResponseDto" resultMap="ApplyResultMap">
         SELECT
             A.APPLY_ID
           , A.POST_ID
           , A.USER_ID
+          , U.NAME
           , A.RECRUIT_POSIT_TYPE_CD
+          , A.TECH_STACK_CD
           , (SELECT DTL_CD_NM FROM CMM_CODE_DTL
              WHERE COM_CD_ID = 'RECRUIT_POSIT_TYPE_CD'
              AND DTL_CD_ID = A.RECRUIT_POSIT_TYPE_CD) AS RECRUIT_POSIT_TYPE_NM
@@ -49,8 +56,12 @@
              WHERE COM_CD_ID = 'APPLY_STATUS_CD'
              AND DTL_CD_ID = A.STATUS_CD) AS STATUS_NM
           , TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT
+          , A.STATUS_CD
         FROM POST_APPLY A
+        JOIN USERS u
+        ON A.USER_ID = U.USER_ID
         WHERE A.POST_ID = #{postId}
+        AND A.USER_ID != (SELECT P.USER_ID FROM POST P WHERE P.POST_ID = #{postId}) /* 스터디장은 목록에서 제외 */
         ORDER BY A.REG_DT DESC
     </select>
 
@@ -61,5 +72,11 @@
         WHERE POST_ID = #{postId}
           AND USER_ID = #{userId}
     </select>
+
+    <update id="updateApplyStatus" parameterType="ApplyRequestDto">
+    	UPDATE POST_APPLY
+		SET STATUS_CD = #{statusCd}
+		WHERE APPLY_ID = #{applyId}
+    </update>
 
 </mapper>
