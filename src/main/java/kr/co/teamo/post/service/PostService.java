@@ -54,10 +54,10 @@ public class PostService {
 	 * @param PostRequestDto
 	 * @return PostResponseDto
 	 */
-	public PostResponseDto findByPostId(PostRequestDto req) {
+	public PostResponseDto findByPostId(Long postId) {
 
 
-		return postMapper.findByPostId(req);
+		return postMapper.findByPostId(postId);
 	}
 
 	public List<PostRecruitPositDto> recruitPositList(PostRequestDto req){

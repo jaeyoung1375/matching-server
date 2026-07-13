@@ -48,7 +48,7 @@ public class PostController {
 	@GetMapping("/public/posts/{postId}")
 	public ApiResponse<PostResponseDto> post(@PathVariable(name = "postId") Long postId,  @Valid @ModelAttribute PostRequestDto req){
 
-		PostResponseDto post = postService.findByPostId(req);
+		PostResponseDto post = postService.findByPostId(postId);
 
 		List<PostRecruitPositDto> positions = postService.recruitPositList(req);
 		List<PostApplyUserDto> applyUsers = postService.selectApplyUsers(req);

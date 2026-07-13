@@ -2,6 +2,8 @@ package kr.co.teamo.apply.mapper;
 
 import kr.co.teamo.apply.dto.ApplyRequestDto;
 import kr.co.teamo.apply.dto.ApplyResponseDto;
+import kr.co.teamo.apply.enums.ApplyStatus;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,5 +32,12 @@ public interface ApplyMapper {
      * @param applyId 지원 아이디
      * @param statusCd 상태코드
      */
-    void updateApplyStatus(ApplyRequestDto req);
+    void updateApplyStatus(@Param("applyId") Long applyId, @Param("statusCd") String statusCd);
+
+    /**
+     * 지원 상세 조회
+     * @param applyId
+     * @return
+     */
+    ApplyResponseDto findByApplyId(Long applyId);
 }

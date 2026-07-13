@@ -26,7 +26,7 @@ public interface PostMapper {
 	 * @param PostRequestDto
 	 * @return PostResponseDto
 	 */
-	PostResponseDto findByPostId(PostRequestDto req);
+	PostResponseDto findByPostId(Long postId);
 
 	/**
 	 * 스터디 모집포지션 목록 조회

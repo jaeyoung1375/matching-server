@@ -22,7 +22,9 @@ public enum CommonErrorCode implements ResponseCode {
 	/** 접근 권한이 없습니다. */
 	ACCESS_DENIED("F0001", HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 	/** 서버 오류가 발생했습니다. */
-	INTERNAL_SERVER_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+	INTERNAL_SERVER_ERROR("9999", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
+	/** 상태코드가 존재하지 않습니다 */
+	INVALID_STATUS_CD("V0002", HttpStatus.BAD_REQUEST, "상태코드가 존재하지 않습니다.");
 
 
 

@@ -65,6 +65,16 @@
         ORDER BY A.REG_DT DESC
     </select>
 
+    <select id="findByApplyId" parameterType="ApplyRequestDto" resultType="ApplyResponseDto">
+    	SELECT
+    		   APPLY_ID
+    		 , POST_ID
+    		 , USER_ID
+    		 , STATUS_CD
+       FROM POST_APPLY
+       WHERE APPLY_ID = #{applyId}
+    </select>
+
     <!-- 중복 지원 여부 확인 -->
     <select id="countApply" resultType="int">
         SELECT COUNT(*)

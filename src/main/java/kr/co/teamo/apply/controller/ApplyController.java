@@ -1,15 +1,19 @@
 package kr.co.teamo.apply.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.teamo.apply.dto.ApplyRequestDto;
 import kr.co.teamo.apply.dto.ApplyResponseDto;
+import kr.co.teamo.apply.enums.ApplyStatus;
 import kr.co.teamo.apply.service.ApplyService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
+import kr.co.teamo.common.code.CommonErrorCode;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.response.ApiResponse;
+import kr.co.teamo.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -24,6 +28,7 @@ import java.util.List;
 public class ApplyController {
 
     private final ApplyService applyService;
+    private final PostService postService;
     private final JwtTokenUtil jwtTokenUtil;
 
     /**
@@ -67,8 +72,26 @@ public class ApplyController {
     public ApiResponse<Void> modifyApplyStatus(
             @PathVariable(name = "applyId") Long applyId, @RequestBody ApplyRequestDto req) {
 
-    	req.setApplyId(applyId);
-    	applyService.updateApply(req);
+    	// 현재 로그안 사용자 조회
+    	Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
+    	Long PostId = applyService.findByApplyId(applyId).getPostId();
+
+    	// 스터디장 조회
+    	Long leaderId = postService.findByPostId(PostId).getUserId();
+
+
+    	// 현재 로그인 사용자가 스터디장이 아니면 예외처리 (보안취약점으로 클라이언트가 변조 요청 우려)
+    	if(!userId.equals(leaderId)) {
+    		throw new CustomException(CommonErrorCode.ACCESS_DENIED);
+    	}
+
+
+    	// 상태코드를 화이트르스토로 관리
+    	ApplyStatus status = ApplyStatus.from(req.getStatusCd());
+
+
+
+    	applyService.updateApply(applyId, status);
 
         return ApiResponse.ok();
     }
