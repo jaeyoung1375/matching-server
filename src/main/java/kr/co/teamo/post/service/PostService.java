@@ -46,6 +46,7 @@ public class PostService {
 		PageHelper.startPage(pageNum,12);
 		List<PostResponseDto> list = postMapper.selectAllPosts(req);
 
+
 		return PageResponseDto.of(list);
 	}
 
@@ -56,6 +57,9 @@ public class PostService {
 	 */
 	public PostResponseDto findByPostId(Long postId) {
 
+		//[TODO] 조회수 로직개선
+
+		postMapper.increaseViewCnt(postId);
 
 		return postMapper.findByPostId(postId);
 	}
@@ -143,5 +147,7 @@ public class PostService {
 		return response;
 
 	}
+
+
 
 }

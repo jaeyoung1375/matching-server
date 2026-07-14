@@ -84,6 +84,8 @@ public class PostResponseDto {
 
 	private List<PostApplyUserDto> applyUsers;
 
+	@Schema(description = "마감일여부")
+	private String isDeadlineOver;
 
 	/** USERS 테이블 조인 **/
 	@Schema(description = "사용자명")

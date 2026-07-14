@@ -53,4 +53,10 @@ public interface PostMapper {
 
 	List<PostApplyUserDto> selectApplyUsers(@Param("postId") Long postId);
 
+	/**
+	 * 조회수 증가
+	 * @return
+	 */
+	int increaseViewCnt(@Param("postId") Long postId);
+
 }
