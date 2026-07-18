@@ -24,7 +24,7 @@
 			  , rs.RECRUIT_POSIT_TYPE_NM
 			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
 			  , p.VIEW_CNT
-			  , p.RECRUIT_END_DATE
+			  , TO_CHAR(p.RECRUIT_END_DATE, 'YYYYMMDD') AS RECRUIT_END_DATE
 			  , CASE
 					WHEN p.RECRUIT_END_DATE <![CDATA[ < TRUNC(SYSDATE) THEN 'Y' ]]>
 					ELSE 'N'
@@ -51,12 +51,12 @@
 				   GROUP BY POST_ID
 		)RS
 		ON p.POST_ID = RS.POST_ID
-		<!--
+
 	<where>
 		<if test="keyword != '' and keyword != null">
-		AND (A.TITLE LIKE #{keyword} || '%' OR A.CONTENT LIKE #{keyword} || '%')
+		AND (UPPER(P.TITLE) LIKE '%' || UPPER(#{keyword}) || '%' OR UPPER(P.CONTENT) LIKE '%' || UPPER(#{keyword}) || '%')
 		</if>
-		<if test="techStackTypeCd != null and techStackTypeCd.size() > 0">
+	<!-- 	<if test="techStackTypeCd != null and techStackTypeCd.size() > 0">
 		AND
 			<foreach item="item" collection="techStackTypeCd" open="(" close=")" separator="AND ">
 			',' ||  B.TECH_STACK || ','
@@ -72,9 +72,9 @@
 		</if>
 		<if test="progressTypeCd != '' and progressTypeCd != null">
 		AND PROGRESS_TYPE_CD = #{progressTypeCd}
-		</if>
+		</if> -->
 	</where>
-	 -->
+
  	ORDER BY P.REG_DT DESC
     </select>
 
