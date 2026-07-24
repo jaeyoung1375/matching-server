@@ -76,6 +76,8 @@ public class PostRequestDto {
 	@Builder.Default
 	private Integer pageNum = 1;
 
+	private String recruitPositTypeCd;
+
 
 
 

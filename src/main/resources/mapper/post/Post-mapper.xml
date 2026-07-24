@@ -53,8 +53,16 @@
 		ON p.POST_ID = RS.POST_ID
 
 	<where>
-		<if test="keyword != '' and keyword != null">
+		<if test="keyword != null and keyword != ''">
 		AND (UPPER(P.TITLE) LIKE '%' || UPPER(#{keyword}) || '%' OR UPPER(P.CONTENT) LIKE '%' || UPPER(#{keyword}) || '%')
+		</if>
+		<if test="recruitPositTypeCd != null and recruitPositTypeCd != ''">
+	    AND EXISTS(
+	        SELECT 1
+	        FROM POST_RECRUIT_POSITION prp2
+	        WHERE prp2.POST_ID = p.POST_ID
+	        AND prp2.RECRUIT_POSIT_TYPE_CD = #{recruitPositTypeCd}
+	    )
 		</if>
 	<!-- 	<if test="techStackTypeCd != null and techStackTypeCd.size() > 0">
 		AND
@@ -93,7 +101,8 @@
 			  , p.RECRUIT_TARGET
 			  , ts.TECH_STACK_CD
 			  , rs.RECRUIT_POSIT_TYPE_NM
-			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
+			  , (SELECT DTL_CD_ID FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
+			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_NM
 			  , p.VIEW_CNT
 			  , TO_CHAR(p.RECRUIT_END_DATE, 'YYYYMMDD') AS RECRUIT_END_DATE
 		FROM POST p
@@ -189,6 +198,24 @@
 		)
     </insert>
 
+    <update id="modifyPost" parameterType="PostRequestDto">
+    UPDATE POST
+	SET
+	    TITLE                 = #{title}
+	  , CONTENT               = #{content}
+	  , MOD_DT                = SYSDATE
+	  , RECRUIT_TYPE_CD       = #{recruitTypeCd}
+	  , RECRUIT_CNT           = #{recruitCnt}
+	  , PROGRESS_TYPE_CD      = #{progressTypeCd}
+	  , PROGRESS_PERIOD       = #{progressPeriod}
+	  , RECRUIT_END_DATE      = #{recruitEndDate}
+	  , RECRUIT_POSIT_TYPE_CD = #{recruitPositTypeCd}
+	  , CONTACT_METHOD_CD     = #{contactMethodCd}
+	  , RECRUIT_TARGET        = #{recruitTarget}
+	WHERE
+	    POST_ID = #{postId}
+    </update>
+
 
 	 <insert id="insertPostTechStack" parameterType="PostRequestDto">
 	    INSERT ALL
@@ -203,6 +230,11 @@
 	    </foreach>
 	    SELECT 1 FROM DUAL
 	</insert>
+
+	<delete id="deleteAllPostTechStack" parameterType="PostRequestDto">
+		DELETE FROM POST_TECH_STACK
+		WHERE POST_ID = #{postId}
+	</delete>
 
 
 	<insert id="insertPostRecruitPosit" parameterType="PostRequestDto">
@@ -220,6 +252,12 @@
 	    </foreach>
 	    SELECT 1 FROM DUAL
 	</insert>
+
+	<delete id="deleteAllPostRecruitPosit" parameterType="PostRequestDto">
+		DELETE FROM POST_RECRUIT_POSITION
+		WHERE POST_ID = #{postId}
+	</delete>
+
 
 	<insert id="insertPostFiles" parameterType="java.util.List">
 	  INSERT INTO POST_FILE (

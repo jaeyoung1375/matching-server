@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import kr.co.teamo.apply.service.ApplyService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
+import kr.co.teamo.common.code.CommonErrorCode;
 import kr.co.teamo.common.code.UserErrorCode;
 import kr.co.teamo.common.exception.CustomException;
 import kr.co.teamo.common.response.ApiResponse;
@@ -46,7 +48,7 @@ public class PostController {
 	}
 
 	@GetMapping("/public/posts/{postId}")
-	public ApiResponse<PostResponseDto> post(@PathVariable(name = "postId") Long postId,  @Valid @ModelAttribute PostRequestDto req){
+	public ApiResponse<PostResponseDto> postDetail(@PathVariable(name = "postId") Long postId,  @Valid @ModelAttribute PostRequestDto req){
 
 		PostResponseDto post = postService.findByPostId(postId);
 
@@ -72,5 +74,17 @@ public class PostController {
 
 		return ApiResponse.ok(postService.createPost(req));
 
+	}
+
+	@PutMapping("/posts/{postId}")
+	public ApiResponse<PostResponseDto> postEdit(@PathVariable(name = "postId") Long postId,  @Valid @RequestBody PostRequestDto req){
+
+		PostResponseDto post = postService.findByPostId(postId);
+
+		if(ObjectUtils.isEmpty(post)) {
+			throw new CustomException(CommonErrorCode.DATA_NOT_FOUND);
+		}
+		req.setPostId(postId);
+		return ApiResponse.ok(postService.modifyPost(req));
 	}
 }

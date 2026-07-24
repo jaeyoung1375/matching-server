@@ -91,6 +91,7 @@ public class PostService {
 			req.setRecruitCnt(totalRecruitCnt);
 		}
 
+
 		// 2. POST 테이블 INSERT
 		postMapper.createPost(req);
 
@@ -119,25 +120,43 @@ public class PostService {
 		if (postMapper.countPostsByUser(req.getUserId()) == 1) {
 			notificationService.createFirstPostNotification(req.getUserId(), req.getPostId());
 		}
-//
-//		// 3. TEMP_YN = N 업데이트
-//		List<FileDto> tempFiles = fileService.selectTempFiles(req.getTempKey());
-//		fileService.confirmTempFiles(req.getTempKey());
-//		// 4. 게시판 <-> 파일 연결
-//
-//		if(tempFiles.isEmpty()) {
-//			throw new CustomException(FileErrorCode.FILE_EMPTY);
-//		}
 
 
-//		List<PostFileDto> postFiles = tempFiles.stream()
-//				.map(f -> PostFileDto.builder()
-//						.postId(req.getPostId())
-//						.fileId(f.getFileId())
-//						.build())
-//				.toList();
-//
-//		postMapper.insertPostFiles(postFiles);
+		PostResponseDto response = PostResponseDto.builder()
+				.postId(req.getPostId())
+				.build();
+
+
+		return response;
+
+	}
+
+	@Transactional
+	public PostResponseDto modifyPost(PostRequestDto req) {
+
+		// 1. 포지션별 모집인원 합산 → recruitCnt 세팅
+		if (!ObjectUtils.isEmpty(req.getRecruitPositions())) {
+			long totalRecruitCnt = req.getRecruitPositions().stream()
+					.mapToLong(PostRecruitPositDto::getRecruitCnt)
+					.sum();
+			req.setRecruitCnt(totalRecruitCnt);
+		}
+
+		// 2. POST 테이블 UPDATE
+		postMapper.modifyPost(req);
+
+		// 3. POST_TECH 테이블 INSERT
+		if (!ObjectUtils.isEmpty(req.getTechStackTypeCd())) {
+			postMapper.deleteAllPostTechStack(req);
+			postMapper.insertPostTechStack(req);
+		}
+
+		// 4. POST_RECRUIT_POSITION 테이블 INSERT
+		if (!ObjectUtils.isEmpty(req.getRecruitPositions())) {
+			postMapper.deleteAllPostRecruitPosit(req);
+			postMapper.insertPostRecruitPosit(req);
+		}
+
 
 		PostResponseDto response = PostResponseDto.builder()
 				.postId(req.getPostId())

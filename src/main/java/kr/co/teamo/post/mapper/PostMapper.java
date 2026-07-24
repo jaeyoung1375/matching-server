@@ -43,7 +43,22 @@ public interface PostMapper {
 	 */
 	void createPost(PostRequestDto req);
 
+	/**
+	 * 게시물 수정
+	 * @param PostRequestDto
+	 *
+	 */
+	void modifyPost(PostRequestDto req);
+
+	/**
+	 * 기술스택 삭제
+	 * @param PostRequestDto
+	 */
+	void deleteAllPostTechStack(PostRequestDto req);
+
 	void insertPostTechStack(PostRequestDto req);
+
+	void deleteAllPostRecruitPosit(PostRequestDto req);
 
 	void insertPostRecruitPosit(PostRequestDto req);
 
