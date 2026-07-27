@@ -74,6 +74,9 @@ public class PostResponseDto {
 	@Schema(description = "조회수")
 	private Long viewCnt;
 
+	@Schema(description = "댓글수")
+	private Long commentCnt;
+
 	@Schema(description = "등록일시")
 	private String regDt;
 

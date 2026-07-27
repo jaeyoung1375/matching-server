@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 
-import kr.co.teamo.apply.dto.ApplyRequestDto;
 import kr.co.teamo.apply.service.ApplyService;
 import kr.co.teamo.auth.util.JwtTokenUtil;
 import kr.co.teamo.common.util.PageResponseDto;
@@ -37,7 +36,7 @@ public class PostService {
 
 	/**
 	 * 게시물 목록 조회
-	 * @param PostRequestDto
+	 * @param req
 	 * @return List<PostResponseDto>
 	 */
 	public PageResponseDto<PostResponseDto> selectAllPosts(PostRequestDto req){
@@ -52,7 +51,7 @@ public class PostService {
 
 	/**
 	 * 게시판 상세 조회
-	 * @param PostRequestDto
+	 * @param postId
 	 * @return PostResponseDto
 	 */
 	public PostResponseDto findByPostId(Long postId) {
@@ -78,7 +77,7 @@ public class PostService {
 
 	/**
 	 * 게시물 등록
-	 * @param PostRequestDto
+	 * @param req
 	 */
 	@Transactional
 	public PostResponseDto createPost(PostRequestDto req) {
@@ -106,15 +105,8 @@ public class PostService {
 		}
 
 
-		// 작성자 자동 등록
-		ApplyRequestDto leader = ApplyRequestDto
-				.builder()
-				.postId(req.getPostId())
-				.userId(jwtTokenUtil.getMemberIdFromSecurityContext())
-				.statusCd("20")
-				.build();
-
-		applyService.createApply(leader);
+		// 작성자 자동 등록 (승인 상태)
+		applyService.registerLeader(req.getPostId(), jwtTokenUtil.getMemberIdFromSecurityContext());
 
 
 		if (postMapper.countPostsByUser(req.getUserId()) == 1) {

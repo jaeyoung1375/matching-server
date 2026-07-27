@@ -22,6 +22,7 @@
 			  , p.RECRUIT_CNT
 			  , ts.TECH_STACK_CD
 			  , rs.RECRUIT_POSIT_TYPE_NM
+			  , cs.COMMENT_CNT
 			  , (SELECT DTL_CD_NM FROM CMM_CODE_DTL WHERE COM_CD_ID ='PROGRESS_TYPE_CD' AND DTL_CD_ID = P.PROGRESS_TYPE_CD) AS PROGRESS_TYPE_CD
 			  , p.VIEW_CNT
 			  , TO_CHAR(p.RECRUIT_END_DATE, 'YYYYMMDD') AS RECRUIT_END_DATE
@@ -51,6 +52,15 @@
 				   GROUP BY POST_ID
 		)RS
 		ON p.POST_ID = RS.POST_ID
+		LEFT JOIN(
+			SELECT
+				   POST_ID
+				 , COUNT(*) AS COMMENT_CNT
+				   FROM "COMMENT"
+				   WHERE USE_YN = 'Y'
+				   GROUP BY POST_ID
+		)cs
+		ON p.POST_ID = cs.POST_ID
 
 	<where>
 		<if test="keyword != null and keyword != ''">

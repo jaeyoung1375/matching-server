@@ -41,6 +41,20 @@ public class ApplyService {
     }
 
     /**
+     * 게시글 작성자(리더) 자동 등록 — 지원 즉시 승인 상태로 등록
+     */
+    @Transactional
+    public void registerLeader(Long postId, Long userId) {
+
+        ApplyRequestDto leader = ApplyRequestDto.builder()
+                .postId(postId)
+                .userId(userId)
+                .build();
+
+        applyMapper.insertApply(leader, ApplyStatus.ACCEPT.getCode());
+    }
+
+    /**
      * 게시글별 지원 목록 조회
      */
     public List<ApplyResponseDto> getApplyList(Long postId) {
