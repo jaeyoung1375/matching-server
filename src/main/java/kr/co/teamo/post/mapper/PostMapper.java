@@ -72,6 +72,6 @@ public interface PostMapper {
 	 * 조회수 증가
 	 * @return
 	 */
-	int increaseViewCnt(@Param("postId") Long postId);
+	int increaseViewCnt(@Param("postId") Long postId, @Param("viewCnt") Long viewCnt);
 
 }

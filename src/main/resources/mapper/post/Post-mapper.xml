@@ -307,7 +307,7 @@
 	<!-- 조회수 증가 -->
 	<update id="increaseViewCnt" parameterType="Long">
 		UPDATE POST
-		SET VIEW_CNT = VIEW_CNT + 1
+		SET VIEW_CNT = VIEW_CNT + #{viewCnt}
 		WHERE POST_ID = #{postId}
 	</update>
 

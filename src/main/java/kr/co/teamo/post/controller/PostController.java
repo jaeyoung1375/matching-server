@@ -2,6 +2,7 @@ package kr.co.teamo.post.controller;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +49,11 @@ public class PostController {
 	}
 
 	@GetMapping("/public/posts/{postId}")
-	public ApiResponse<PostResponseDto> postDetail(@PathVariable(name = "postId") Long postId,  @Valid @ModelAttribute PostRequestDto req){
+	public ApiResponse<PostResponseDto> postDetail(@PathVariable(name = "postId") Long postId,
+	                                               @Valid @ModelAttribute PostRequestDto req,
+	                                               HttpServletRequest request){
+
+		Long userId = jwtTokenUtil.getMemberIdFromSecurityContext();
 
 		PostResponseDto post = postService.findByPostId(postId);
 
@@ -87,4 +92,8 @@ public class PostController {
 		req.setPostId(postId);
 		return ApiResponse.ok(postService.modifyPost(req));
 	}
+
+
+
+
 }
